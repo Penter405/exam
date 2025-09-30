@@ -8,7 +8,7 @@ note = fixed questions and your note
 """
 
 
-
+import re
 import random
 import os
 import ast
@@ -162,6 +162,7 @@ class exam():
             #thanks chatgpt tell me \n is one word but not 2 word
             rs=[pe for pe in rs if pe!="\n"]
             rs=[pe for pe in rs if pe!=""]
+            #rs=[re.sub(r' {2,}', '', pe) for pe in rs]#this row is made by chat gpt
             rs=[pe for pe in rs if pe!=""]
             rs="".join(rs)
             number=rs.split(". (")[0]
@@ -343,11 +344,14 @@ def fix_question(question,wrongnumber,note):
     rs._chatgpt_save("\n".join(real_wrongnumber_list),wrongnumber,"w",bot2)
 
 
-def test():
+def test(information):
     #print(dir(exam))
     #help(list.insert)
-    print(dir(set))
-
+    #print(dir(set))
+    rs=exam()
+    rs.question=rs._load(information,"dict")
+    for pe in [2013,1248]:
+        print(rs.question[pe])
 def initialize(sub_file,ob_file,bad):
     rs=exam()
     rs.data=rs._get_data(sub_file,"str")#print(rs.data) success get data
@@ -370,7 +374,7 @@ match bot:
     case 2:
         fix_question(file[2],file[3],file[4])
     case 3:
-        test()
+        test(file[2])
     case 0:
         initialize(file[0],file[2],bad)
     case _:
