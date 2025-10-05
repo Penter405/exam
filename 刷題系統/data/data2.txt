@@ -2230,7 +2230,7 @@
            2.3.10 。
 131. (2)   一顆硬碟以 MBR 分割表分割，最多可以設定成幾個主要分割區 (Primary
            Partition)？ ①3 ②4 ③5 ④6 。
-132. (3)   Linux 的 man pag e 資料通常放在 /usr/share/man 的目錄內，可透過修改
+132. (3)   Linux 的 man page 資料通常放在 /usr/share/man 的目錄內，可透過修改
            下列哪一個 configuration file 來變更 man page 的存放位置？ ①
            /var/man.conf ②/etc/man.conf ③/etc/man.config ④/var/man.config 。
 133. (2)   Linux 指令「ls -l」可以顯示檔案的 10 個詳細屬性，第一個屬性若是顯
