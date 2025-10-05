@@ -8,7 +8,7 @@ note = fixed questions and your note
 """
 
 
-
+import re
 import random
 import os
 import ast
@@ -90,8 +90,9 @@ class exam():
     def _useful_data_to_right_data(self,ob:str)->list:
         """correct split way"""
         result=[]
+        ob=ob.replace("","")
         haha=ob.split("。\n")
-        ob=ob.split("。\n")
+        
         index=-1
         for rs in haha:
             yesno=1
@@ -161,14 +162,40 @@ class exam():
         for rs in ob:
             #thanks chatgpt tell me \n is one word but not 2 word
             rs=[pe for pe in rs if pe!="\n"]
-            rs=[pe for pe in rs if pe!=""]
-            rs=[pe for pe in rs if pe!=""]
+            #rs=[pe for pe in rs if pe!=""]
+            #rs=[re.sub(r' {2,}', '', pe) for pe in rs]#this row is made by chat gpt
+            #rs=[pe for pe in rs if pe!=""]
+
+
+            todo=rs
+            rs=[]
+            index=-1
+            bad=0
+            may_use=False
+            for cheakspace in todo:
+                index+=1
+                if cheakspace==" ":
+                    bad+=1
+                    may_use=True
+                else:
+                    bad=0
+                if bad>=2:
+                    may_use=False
+                if bad==0:
+                    if may_use:
+                        rs.append(" ")
+                        may_use=False
+                    rs.append(cheakspace)
+
+
             rs="".join(rs)
             number=rs.split(". (")[0]
             answer=get_correct_answer(rs.split(". (")[1])
             #answer=rs.split(". (")[1][0]
-            q1=rs.split(". (")[1][len(answer)+1:].split("①")[0].replace(" ", "")
-            q2="①"+rs.split("①")[1].replace(" ", "")
+            q1=rs.split(". (")[1][len(answer)+1:].split("①")[0]
+            if q1[0]==" ":
+                q1=q1[1:]
+            q2="①"+rs.split("①")[1]
             #if we split by "。", the last one will wrong, so we dont use the last
             #print(number,answer)
             #print(q1)
@@ -197,7 +224,15 @@ class exam():
             """
         return result
 
-    
+
+def split_q2(ob:str)->list:
+    a1=ob.split("②")[0]
+    a2=("②"+ob.split("②")[1]).split("③")[0]
+    a3=("③"+("②"+ob.split("②")[1]).split("③")[1]).split("④")[0]
+    a4="④"+("③"+("②"+ob.split("②")[1]).split("③")[1]).split("④")[1]
+    return [a1,a2,a3,a4]
+
+
 def set_to_str(ob):
     result=[]
     for rs in ob:
@@ -267,7 +302,7 @@ def main(dnf,wrong_question_number,information):
         number=list(rs.question.keys())
         print("新開始")
     elif int(bot)==0:
-        number=rs._load(dnf,"str")
+        number=rs._load(dnf,"list")
         print("接續之前題目")
     else:
         print("error")
@@ -278,7 +313,8 @@ def main(dnf,wrong_question_number,information):
         ob=random.choice(number)
         number.remove(ob)
         print(rs.question[ob][0])
-        print(rs.question[ob][1])
+        for hahaha in split_q2(rs.question[ob][1]):
+            print(hahaha)
         print("tell me the answer \n(if you wanna stop, type 'stop') \n(if you dont know the answer,type 0)")
         userinput=input()
         if userinput=="stop":
@@ -311,17 +347,23 @@ def fix_question(question,wrongnumber,note):
     for pe in wrongnumber_list:
         index+=1
         print("題號"+pe)
-        print(rs.question[int(pe)])
+        print(rs.question[int(pe)][0])
+        for hahaha in split_q2(rs.question[int(pe)][1]):
+            print(hahaha)
+        print(rs.question[int(pe)][2])
         bot=input('請寫下訂正(停止訂正請輸入 stop)\n換行請輸入" .."(半形空格+兩個半行英文句號)\n')
         if bot=="stop":
             break
         real_wrongnumber_list.remove(pe)
         rs._chatgpt_save(str(pe),note,"a",True)
         hahaha=rs.question[int(pe)]
+        hahaha[1]=split_q2(hahaha[1])
         hahaha[-1]=set_to_str(hahaha[-1])
-        print(hahaha)
-        print("\n".join(hahaha))
-        rs._chatgpt_save("\n".join(hahaha),note,"a",True)
+        #print(hahaha)
+        #print("\n".join(hahaha))
+        for question_data in hahaha:
+            rs._chatgpt_save(question_data,note,"a",True)
+        #rs._chatgpt_save("\n".join(hahaha),note,"a",True)
         #note.write("\n".join(rs.question[int(pe)]))
         #n.write("\n")
         if " .." in bot:
@@ -343,17 +385,20 @@ def fix_question(question,wrongnumber,note):
     rs._chatgpt_save("\n".join(real_wrongnumber_list),wrongnumber,"w",bot2)
 
 
-def test():
+def test(information):
     #print(dir(exam))
     #help(list.insert)
-    print(dir(set))
-
+    #print(dir(set))
+    rs=exam()
+    rs.question=rs._load(information,"dict")
+    for pe in [2013,1248]:
+        print(rs.question[pe])
 def initialize(sub_file,ob_file,bad):
     rs=exam()
     rs.data=rs._get_data(sub_file,"str")#print(rs.data) success get data
     rs.useful_data=rs._ignore_useless_and_get_useful_data(rs.data.split("\n"),bad)
     rs.right_data=rs._useful_data_to_right_data("\n".join(rs.useful_data))
-    rs.question=rs._right_data_to_question(rs.right_data[0:-1])
+    rs.question=rs._right_data_to_question(rs.right_data)
     rs._chatgpt_save(rs.question,ob_file,"w",False)
 haha=int(input("乙檢 1\n丙檢 2\n"))
 print("\n")
@@ -370,7 +415,7 @@ match bot:
     case 2:
         fix_question(file[2],file[3],file[4])
     case 3:
-        test()
+        test(file[2])
     case 0:
         initialize(file[0],file[2],bad)
     case _:
