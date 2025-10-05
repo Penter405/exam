@@ -267,7 +267,7 @@ def main(dnf,wrong_question_number,information):
         number=list(rs.question.keys())
         print("新開始")
     elif int(bot)==0:
-        number=rs._load(dnf,"str")
+        number=rs._load(dnf,"list")
         print("接續之前題目")
     else:
         print("error")
