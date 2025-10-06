@@ -90,7 +90,7 @@ class exam():
     def _useful_data_to_right_data(self,ob:str)->list:
         """correct split way"""
         result=[]
-        ob=ob.replace("","")
+        ob=ob.replace("\x0c","")
         haha=ob.split("。\n")
         
         index=-1
@@ -420,3 +420,4 @@ match bot:
         initialize(file[0],file[2],bad)
     case _:
         print("input error")
+
