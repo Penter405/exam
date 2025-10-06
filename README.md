@@ -27,3 +27,5 @@ https://github.com/user-attachments/assets/5b466c36-8420-4f96-9bf8-7e3a686be25c
 
 https://github.com/user-attachments/assets/4a93daf4-3a4e-4857-be78-c7d61fae7e41
 
+#擴充檢定練習須知
+<img width="207" height="73" alt="image" src="https://github.com/user-attachments/assets/50d7453c-d636-4932-aa05-dc2b47ed3f48" />
