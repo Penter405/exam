@@ -90,7 +90,7 @@ class exam():
     def _useful_data_to_right_data(self,ob:str)->list:
         """correct split way"""
         result=[]
-        ob=ob.replace("\x0c","")
+        ob=ob.replace("\x0c","")
         haha=ob.split("。\n")
         
         index=-1
@@ -393,6 +393,8 @@ def test(information):
     rs.question=rs._load(information,"dict")
     for pe in [2013,1248]:
         print(rs.question[pe])
+
+
 def initialize(sub_file,ob_file,bad):
     rs=exam()
     rs.data=rs._get_data(sub_file,"str")#print(rs.data) success get data
@@ -400,15 +402,27 @@ def initialize(sub_file,ob_file,bad):
     rs.right_data=rs._useful_data_to_right_data("\n".join(rs.useful_data))
     rs.question=rs._right_data_to_question(rs.right_data)
     rs._chatgpt_save(rs.question,ob_file,"w",False)
-haha=int(input("乙檢 1\n丙檢 2\n"))
+
+
+which_exam=int(input("新增 add\n乙檢 1\n丙檢 2\n"))
 print("\n")
-bot=int(input("main 1\nfix_question 2\ntest 3\ninitialize 0\n"))
-if haha==1:
+
+"""
+走訪2個檔案:
+file_name.txt  存放dict  {檢定名稱:[[檔案們],[bad_word]]}
+if nothing in the file_name.txt:
+    現場寫一個dict
+    放到file_name.txt
+    print("nothing in the exam system\ninput 'add' to add")
+"""
+if which_exam==1:
     file=["data2.txt","did_not_finish2.txt","imformation2.txt","wrong_question_number2.txt","note2.txt"]
     bad=["of 64","電腦軟體應用 乙級 工作項目"]
-elif haha==2:
+elif which_exam==2:
     file=["data.txt","did_not_finish.txt","imformation.txt","wrong_question_number.txt","note.txt"]
     bad=["of 49","電腦軟體應用 丙級 工作項目"]
+
+bot=int(input("main 1\nfix_question 2\ntest 3\ninitialize 0\n"))
 match bot:
     case 1:
         main(file[1],file[3],file[2])
@@ -420,4 +434,3 @@ match bot:
         initialize(file[0],file[2],bad)
     case _:
         print("input error")
-
