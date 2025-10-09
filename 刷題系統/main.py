@@ -12,6 +12,9 @@ import re
 import random
 import os
 import ast
+import tkinter
+screen=tkinter.Tk()
+
 
 class exam():
     def __init__(self):
@@ -223,6 +226,24 @@ class exam():
                     return 0
             """
         return result
+rs=exam()
+
+
+Global_variable_to_save_wheater_GUI_or_not=rs._load()
+real_input=input
+real_print=print
+def input(txt,GUI=Global_variable_to_save_wheater_GUI_or_not):
+    if GUI:
+        pass
+    else:
+        return str(txt)
+
+class GUI():
+    def __init__(self):
+        self.output=None#output to user screen
+        self.input=None#user input data to a table in GUI
+        screen.title="GUI exam system"
+        self.output_place=None#screen.{we need to write a variable of screen global variable}
 
 
 def split_q2(ob:str)->list:
@@ -295,7 +316,6 @@ def chatgpt_count_the_file_path_in_data_folder(second_file):
 
 
 def main(dnf,wrong_question_number,information):
-    rs=exam()
     rs.question=rs._load(information,"dict")#print(rs.question)
     bot=input("新開始 1 \n接續之前題目 0\n")
     if int(bot)==1:
@@ -333,7 +353,6 @@ def main(dnf,wrong_question_number,information):
     print("the question you did not finish saved in "+chatgpt_count_the_file_path_in_data_folder(dnf))
 
 def fix_question(question,wrongnumber,note):
-    rs=exam()
     rs.question=rs._load(question,"dict")
     #訂正錯題
     f=open(chatgpt_count_the_file_path_in_data_folder(wrongnumber),"r",encoding="utf-8")
@@ -388,15 +407,12 @@ def fix_question(question,wrongnumber,note):
 def test(information):
     #print(dir(exam))
     #help(list.insert)
-    #print(dir(set))
-    rs=exam()
     rs.question=rs._load(information,"dict")
     for pe in [2013,1248]:
         print(rs.question[pe])
 
 
 def initialize(sub_file,ob_file,bad):
-    rs=exam()
     rs.data=rs._get_data(sub_file,"str")#print(rs.data) success get data
     rs.useful_data=rs._ignore_useless_and_get_useful_data(rs.data.split("\n"),bad)
     rs.right_data=rs._useful_data_to_right_data("\n".join(rs.useful_data))
