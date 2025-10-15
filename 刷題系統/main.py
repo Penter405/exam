@@ -12,147 +12,6 @@ import re
 import random
 import os
 import ast
-import tkinter
-
-def isGUI():
-    return int(_load("isGUI.txt","str"))
-
-
-def _get_data(name,to_data_type):
-    path=chatgpt_count_the_file_path_in_data_folder(name)
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            content = f.read()
-    except Exception:
-        print("無法讀取檔案，請確認檔案路徑是否正確")
-        print("程式結束")
-        return False
-    match to_data_type:
-        case "list":
-            return file_str_to_list(content)
-        case "dict":
-            return file_str_to_dict(content)
-        case "str":
-            return content
-        case _:
-            print("input error")
-            print("list dict str")
-            print("exit")
-            return False
-
-
-def _load(ob,data_type):
-    result=[]
-    with open(chatgpt_count_the_file_path_in_data_folder(ob), "r", encoding="utf-8",errors="ignore") as f:
-        bot=f.read()
-    match data_type:
-        case "dict":
-            return file_str_to_dict(bot)
-        case "list":
-            return file_str_to_list(bot)
-        case "str":
-            return str(bot)
-    return 0
-
-
-def _chatgpt_save(ob,file,append_or_write:str,join_last_row:bool):
-    if len(ob)==0:
-        print("nothing inside")
-    #this function is made by chatGPT and me
-        
-    # 將 dict 轉成字串寫入檔案
-    with open(chatgpt_count_the_file_path_in_data_folder(file), append_or_write, encoding="utf-8",errors="ignore") as f:
-        f.write(str(ob))
-        if join_last_row:
-            f.write("\n")
-
-
-def split_q2(ob:str)->list:
-    a1=ob.split("②")[0]
-    a2=("②"+ob.split("②")[1]).split("③")[0]
-    a3=("③"+("②"+ob.split("②")[1]).split("③")[1]).split("④")[0]
-    a4="④"+("③"+("②"+ob.split("②")[1]).split("③")[1]).split("④")[1]
-    return [a1,a2,a3,a4]
-
-
-def set_to_str(ob):
-    result=[]
-    for rs in ob:
-        result.append(rs)
-    return "".join(result)
-
-
-def get_correct_answer(string):
-    result=set()#之後要判斷答案是不是全部一樣 set(123)=set(321)
-    for rs in string:
-        try:
-            a=int(rs)
-        except:
-            return result
-        result.add(str(a))
-    return result
-
-
-def file_str_to_dict(content):
-    info_dict = ast.literal_eval(content)
-    return info_dict
-
-
-def file_str_to_list(content):
-    info_list = ast.literal_eval(content)
-
-    if not isinstance(info_list, list):
-        raise TypeError(f"檔案內容不是 list:{type(info_list)}")
-
-    return info_list
-
-
-def chatgpt_get_my_path():
-    #this function is made by chat GPT
-    return os.path.abspath(__file__)
-
-
-def chatgpt_count_the_file_path_in_data_folder(second_file):
-    #chat gpt teach me \ should change to \\
-    """bot=chatgpt_get_my_path().split("\\")
-    bot.pop(-1)
-    bot.append(second_file)
-    以上我寫的  沒有跨平台性  只能在window跑
-    """
-    #以下chatgpt help
-    tosplit=os.path.sep
-    bot=chatgpt_get_my_path().split(tosplit)
-    bot.pop(-1)
-    bot.append("data")
-    bot.append(second_file)
-    return tosplit.join(bot)
-
-
-if isGUI():
-    print("GUI")
-    real_input=input
-    real_print=print
-    def print(txt):
-        #screen.{output space}=txt
-        pass
-
-    def input(txt):
-            #ask GUI input
-
-            result=None
-            #screen.{a table of input}
-            #return what summited
-            return str(result)
-
-screen=tkinter.Tk()
-class GUI():
-    def __init__(self):
-        self.output=None#output to user screen
-        self.input=None#user input data to a table in GUI
-        screen.title="GUI exam system"
-        self.output_place=None#screen.{we need to write a variable of screen global variable}
-if isGUI():
-    pass
 
 class exam():
     def __init__(self):
@@ -163,7 +22,28 @@ class exam():
         self.question={}
         self.did_not_finish=[]
         self.wrong_question=[]
-
+    @staticmethod
+    def _get_data(name,to_data_type):
+        path=chatgpt_count_the_file_path_in_data_folder(name)
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except Exception:
+            print("無法讀取檔案，請確認檔案路徑是否正確")
+            print("程式結束")
+            return False
+        match to_data_type:
+            case "list":
+                return file_str_to_list(content)
+            case "dict":
+                return file_str_to_dict(content)
+            case "str":
+                return content
+            case _:
+                print("input error")
+                print("list dict str")
+                print("exit")
+                return False
             
     def _ignore_useless_and_get_useful_data(self,ob:list,useless:list[0:2])->list:
         """corrent delete useless data in each row,like 'page 1 of 49' and '工作項目 一 ' or nothing in the row"""
@@ -178,6 +58,34 @@ class exam():
         
         return result
 
+    def _get_to_delete(self,ob):
+        pass
+    def _delete_useless(self):
+        pass
+
+    def _chatgpt_save(self,ob,file,append_or_write:str,join_last_row:bool):
+        if len(ob)==0:
+            print("nothing inside")
+        #this function is made by chatGPT and me
+        
+        # 將 dict 轉成字串寫入檔案
+        with open(chatgpt_count_the_file_path_in_data_folder(file), append_or_write, encoding="utf-8",errors="ignore") as f:
+            f.write(str(ob))
+            if join_last_row:
+                f.write("\n")
+
+    def _load(self,ob,data_type):
+        result=[]
+        with open(chatgpt_count_the_file_path_in_data_folder(ob), "r", encoding="utf-8",errors="ignore") as f:
+            bot=f.read()
+        match data_type:
+            case "dict":
+                return file_str_to_dict(bot)
+            case "list":
+                return file_str_to_list(bot)
+            case "str":
+                return bot
+        return 0
     
     def _useful_data_to_right_data(self,ob:str)->list:
         """correct split way"""
@@ -200,7 +108,46 @@ class exam():
             else:
                 result.append(rs)
         return result
+        """
+        n-1  n
+        bot
+        bot=n-1+n (str+str)
+        list.
+        """
+        """
+        ob=[pe for pe in ob if pe!=""]
+        result=ob
+        me_with_last_join=[]
+        index=-1
+        my_last=False
+        for rs in ob:
+            index+=1
+            next_first=rs[0]
+            is_int=True
+            try:
+                int(next_first)
+            except:
+                is_int=False
 
+            if my_last==False or my_last=="。" and is_int:
+                pass
+            else:
+                
+                #now in n 
+                #see n and n-1 fuck up
+                #me_with_last_join.append(n)
+                
+                me_with_last_join.append(index)
+            
+            my_last=rs[-1]
+
+
+        for rs in me_with_last_join:
+            result.insert(rs-1,result[rs-1]+result[rs])
+            result.pop(rs)
+            result.pop(rs)
+        return result
+        """
 
     def _right_data_to_question(self,ob:list):
         """as we have delete shit row,
@@ -276,10 +223,65 @@ class exam():
                     return 0
             """
         return result
-rs=exam()
 
 
+def split_q2(ob:str)->list:
+    a1=ob.split("②")[0]
+    a2=("②"+ob.split("②")[1]).split("③")[0]
+    a3=("③"+("②"+ob.split("②")[1]).split("③")[1]).split("④")[0]
+    a4="④"+("③"+("②"+ob.split("②")[1]).split("③")[1]).split("④")[1]
+    return [a1,a2,a3,a4]
 
+
+def set_to_str(ob):
+    result=[]
+    for rs in ob:
+        result.append(rs)
+    return "".join(result)
+
+
+def get_correct_answer(string):
+    result=set()#之後要判斷答案是不是全部一樣 set(123)=set(321)
+    for rs in string:
+        try:
+            a=int(rs)
+        except:
+            return result
+        result.add(str(a))
+    return result
+
+def file_str_to_dict(content):
+    info_dict = ast.literal_eval(content)
+    return info_dict
+
+
+def file_str_to_list(content):
+    info_list = ast.literal_eval(content)
+
+    if not isinstance(info_list, list):
+        raise TypeError(f"檔案內容不是 list:{type(info_list)}")
+
+    return info_list
+
+
+def chatgpt_get_my_path():
+    #this function is made by chat GPT
+    return os.path.abspath(__file__)
+     
+def chatgpt_count_the_file_path_in_data_folder(second_file):
+    #chat gpt teach me \ should change to \\
+    """bot=chatgpt_get_my_path().split("\\")
+    bot.pop(-1)
+    bot.append(second_file)
+    以上我寫的  沒有跨平台性  只能在window跑
+    """
+    #以下chatgpt help
+    tosplit=os.path.sep
+    bot=chatgpt_get_my_path().split(tosplit)
+    bot.pop(-1)
+    bot.append("data")
+    bot.append(second_file)
+    return tosplit.join(bot)
     
 
 
@@ -293,6 +295,7 @@ rs=exam()
 
 
 def main(dnf,wrong_question_number,information):
+    rs=exam()
     rs.question=rs._load(information,"dict")#print(rs.question)
     bot=input("新開始 1 \n接續之前題目 0\n")
     if int(bot)==1:
@@ -330,6 +333,7 @@ def main(dnf,wrong_question_number,information):
     print("the question you did not finish saved in "+chatgpt_count_the_file_path_in_data_folder(dnf))
 
 def fix_question(question,wrongnumber,note):
+    rs=exam()
     rs.question=rs._load(question,"dict")
     #訂正錯題
     f=open(chatgpt_count_the_file_path_in_data_folder(wrongnumber),"r",encoding="utf-8")
@@ -384,14 +388,15 @@ def fix_question(question,wrongnumber,note):
 def test(information):
     #print(dir(exam))
     #help(list.insert)
-    """rs.question=rs._load(information,"dict")
+    #print(dir(set))
+    rs=exam()
+    rs.question=rs._load(information,"dict")
     for pe in [2013,1248]:
         print(rs.question[pe])
-    """
-    print(dir(screen))
 
 
 def initialize(sub_file,ob_file,bad):
+    rs=exam()
     rs.data=rs._get_data(sub_file,"str")#print(rs.data) success get data
     rs.useful_data=rs._ignore_useless_and_get_useful_data(rs.data.split("\n"),bad)
     rs.right_data=rs._useful_data_to_right_data("\n".join(rs.useful_data))
