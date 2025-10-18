@@ -91,8 +91,6 @@ class GUI:
 
         def gui_input(prompt=''):
             gui._append_output(prompt)
-            for btn in gui.num_buttons.values():
-                btn.setStyleSheet("background-color: lightblue")
 
             result_container = {'value': None, 'ready': False}
             gui._input_callbacks.append(lambda val: result_container.update({'value': val, 'ready': True}))
@@ -100,8 +98,6 @@ class GUI:
             while not result_container['ready']:
                 gui.app.processEvents()
 
-            for btn in gui.num_buttons.values():
-                btn.setStyleSheet("")
             return result_container['value']
 
         def gui_print(*args, **kwargs):
