@@ -40,6 +40,13 @@ https://github.com/user-attachments/assets/4a93daf4-3a4e-4857-be78-c7d61fae7e41
 
 #### 為了避免資料遺失或程式異常，請 **務必透過輸入 `quit` 來退出系統**。  
 #### 直接關閉視窗（點右上角叉叉）可能會導致未儲存的進度消失或背景任務未正確結束。
+
+### 如何儲存目前的gui格式
+
+
+https://github.com/user-attachments/assets/2f7f5a6a-1406-4c08-ab5b-6209a88d5bc8
+
+
 ### 由以下影片可以讓你了解GUI
 
 
