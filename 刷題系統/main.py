@@ -335,6 +335,7 @@ def main(dnf,wrong_question_number,information):
     print("wrong question saved in "+chatgpt_count_the_file_path_in_data_folder(wrong_question_number))
     rs._chatgpt_save(number,dnf,"w",False)
     print("the question you did not finish saved in "+chatgpt_count_the_file_path_in_data_folder(dnf))
+    print("\n\n")
 
 def fix_question(question,wrongnumber,note):
     rs=exam()
@@ -413,10 +414,6 @@ def initialize(sub_file,ob_file,bad):
     rs.question=rs._right_data_to_question(rs.right_data)
     rs._chatgpt_save(rs.question,ob_file,"w",False)
 
-
-which_exam=int(input("新增 add\n乙檢 1\n丙檢 2\n"))
-print("\n")
-
 """
 走訪2個檔案:
 file_name.txt  存放dict  {檢定名稱:[[檔案們],[bad_word]]}
@@ -425,22 +422,27 @@ if nothing in the file_name.txt:
     放到file_name.txt
     print("nothing in the exam system\ninput 'add' to add")
 """
-if which_exam==1:
-    file=["data2.txt","did_not_finish2.txt","imformation2.txt","wrong_question_number2.txt","note2.txt"]
-    bad=["of 64","電腦軟體應用 乙級 工作項目"]
-elif which_exam==2:
-    file=["data.txt","did_not_finish.txt","imformation.txt","wrong_question_number.txt","note.txt"]
-    bad=["of 49","電腦軟體應用 丙級 工作項目"]
+while True:
+    which_exam=input("退出刷題系統 quit\n新增 add\n乙檢 1\n丙檢 2\n")
+    print("\n")
+    if which_exam=="quit":
+        break
+    if which_exam=="1":
+        file=["data2.txt","did_not_finish2.txt","imformation2.txt","wrong_question_number2.txt","note2.txt"]
+        bad=["of 64","電腦軟體應用 乙級 工作項目"]
+    elif which_exam=="2":
+        file=["data.txt","did_not_finish.txt","imformation.txt","wrong_question_number.txt","note.txt"]
+        bad=["of 49","電腦軟體應用 丙級 工作項目"]
 
-bot=int(input("main 1\nfix_question 2\ntest 3\ninitialize 0\n"))
-match bot:
-    case 1:
-        main(file[1],file[3],file[2])
-    case 2:
-        fix_question(file[2],file[3],file[4])
-    case 3:
-        test(file[2])
-    case 0:
-        initialize(file[0],file[2],bad)
-    case _:
-        print("input error")
+    bot=int(input("main 1\nfix_question 2\ntest 3\ninitialize 0\n"))
+    match bot:
+        case 1:
+            main(file[1],file[3],file[2])
+        case 2:
+            fix_question(file[2],file[3],file[4])
+        case 3:
+            test(file[2])
+        case 0:
+            initialize(file[0],file[2],bad)
+        case _:
+            print("input error")
