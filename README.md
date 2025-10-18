@@ -14,14 +14,16 @@
 #### test 3   開發者測試區
 #### initialize 0  題目初始化
 
-# 下載教學
-## 版本說明
+
+# 如何查看各個版本
+## 請查看各個branch
+## 由新到舊:try_gui,  OOP, debug_file_path, original
+<img width="1317" height="584" alt="image" src="https://github.com/user-attachments/assets/a78f5048-d88e-46b6-9fdc-7c28a4074e34" />
 
 
-<img width="1038" height="799" alt="螢幕擷取畫面 2025-10-05 150955" src="https://github.com/user-attachments/assets/b8b8586f-f9f1-40aa-a6bf-41c6e5922cce" />
 
 
-## 下載zip檔案
+# 下載zip檔案
 
 
 https://github.com/user-attachments/assets/5b466c36-8420-4f96-9bf8-7e3a686be25c
