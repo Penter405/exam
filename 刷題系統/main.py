@@ -14,12 +14,10 @@ import os
 import ast
 
 
-
-# main.py
-from gui_system import GUI
-
-# 初始化 GUI，預設 PyQt
-gui = GUI(backend='pyqt')
+# main.py 
+from gui_system import GUI 
+# 初始化 GUI，預設 PyQt 
+gui = GUI()
 
 
 class exam():
