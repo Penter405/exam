@@ -4,7 +4,7 @@ imformation = questions
 did_not_finish = questions you have not finished
 data = from PDF to txt, the tool is https://convertio.co/zh/pdf-txt/
 note = fixed questions and your note
-file_data_type:https://www.freeconvert.com/mkv-to-mp4
+
 """
 
 
@@ -309,7 +309,7 @@ def main(dnf,wrong_question_number,information):
         number=rs._load(dnf,"list")
         print("接續之前題目")
     else:
-        print("error")
+        print("error\n\n")
         return 0
     wrongnumber=[]
     while len(number)>0:
@@ -433,7 +433,9 @@ while True:
     elif which_exam=="2":
         file=["data.txt","did_not_finish.txt","imformation.txt","wrong_question_number.txt","note.txt"]
         bad=["of 49","電腦軟體應用 丙級 工作項目"]
-
+    else:
+        print("input error\n\n")
+        continue
     bot=int(input("main 1\nfix_question 2\ntest 3\ninitialize 0\n"))
     match bot:
         case 1:
