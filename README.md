@@ -1,8 +1,13 @@
 # 刷題系統
 ### 你好 我是Penter 如果你想使用此程式來練習丙檢與乙檢 請遵守以下規則:
 #### 1.請將main.py 檔案 與 data 資料夾 放在同一個路徑,也就是它們的上層資料夾相同
-#### 2.請勿擅自編輯任何檔案。如果你想要看筆記，可以去data 資料夾找
-#### 3.刷題請使用main.py 檔案
+#### 2.請將main.py 檔案 與 gui_system.py 放在同一個路徑,也就是它們的上層資料夾相同
+#### 3.請勿擅自編輯任何檔案。如果你想要看筆記，可以去data 資料夾找
+#### 4.刷題請使用main.py 檔案
+
+
+
+
 # main.py 內容解釋
 #### main 1  刷題
 #### fix_question 2  訂正題目
@@ -26,6 +31,25 @@ https://github.com/user-attachments/assets/5b466c36-8420-4f96-9bf8-7e3a686be25c
 
 
 https://github.com/user-attachments/assets/4a93daf4-3a4e-4857-be78-c7d61fae7e41
+
+# GUI系統(由ChatGPT 製作)
+#### 目前的GUI系統有兩種input方式
+##### 1 : 點選五個按鈕 (0,1,2,3,4)
+##### 2 : 在下方輸入框內輸入後，點選summit 按鈕
+### 由以下影片可以讓你了解GUI
+
+
+#### 手動調整
+https://github.com/user-attachments/assets/d9a921de-14de-4ba5-b501-de545363dae5
+
+
+#### 訂正
+https://github.com/user-attachments/assets/ae93ddce-9fa6-41c1-b3ef-c52c58c1e699
+
+
+####主程式(考試)
+https://github.com/user-attachments/assets/da86b0b8-d280-45c4-b9d1-12c98b35cedd
+
 
 # 擴充檢定練習須知(待開發)
 #### 使用main.py 的前言(位於最上方的多行注釋) 當中的連結
