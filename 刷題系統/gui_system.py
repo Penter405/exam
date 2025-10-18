@@ -167,11 +167,14 @@ class GUI:
     def _save_gui_geometry(self):
         try:
             geo = self.window.geometry()
+            output_height = self.output_space.height()
             with open(GUI_PATH, "w", encoding="utf-8") as f:
-                f.write(f"{geo.x()},{geo.y()},{geo.width()},{geo.height()}")
+                # 格式: x,y,width,height,output_height
+                f.write(f"{geo.x()},{geo.y()},{geo.width()},{geo.height()},{output_height}")
             self._append_output("GUI 位置與大小已儲存到 data/gui.txt")
         except Exception as e:
             self._append_output(f"儲存 GUI 位置失敗: {e}")
+
 
     # --------------------------
     # 讀取 GUI 大小與位置
@@ -180,14 +183,23 @@ class GUI:
         if os.path.exists(GUI_PATH):
             try:
                 with open(GUI_PATH, "r", encoding="utf-8") as f:
-                    x, y, w, h = map(int, f.read().split(","))
+                    parts = list(map(int, f.read().split(",")))
+                    if len(parts) == 5:
+                        x, y, w, h, output_h = parts
+                    else:
+                        x, y, w, h = parts
+                        output_h = h * 5 // 6  # 預設比例
                     self.window.setGeometry(x, y, w, h)
+                    # 設定 splitter stretch
+                    total_height = self.splitter.height() or h
+                    self.splitter.setSizes([output_h, total_height - output_h])
                     self._append_output("使用 gui.txt 初始化 GUI 大小與位置")
             except Exception:
                 self._append_output("gui.txt 讀取失敗，使用預設大小")
         else:
             self._append_output("找不到 gui.txt，使用預設大小")
             self.window.setGeometry(100, 100, 800, 600)
+
 
     # --------------------------
     # 啟動事件循環
