@@ -85,6 +85,8 @@ class exam():
         result=[]
         with open(chatgpt_count_the_file_path_in_data_folder(ob), "r", encoding="utf-8",errors="ignore") as f:
             bot=f.read()
+            if len(bot)==0:
+                return 0
         match data_type:
             case "dict":
                 return file_str_to_dict(bot)
@@ -307,6 +309,9 @@ def main(dnf,wrong_question_number,information):
         print("新開始")
     elif int(bot)==0:
         number=rs._load(dnf,"list")
+        if number==0:
+            print("error 你沒有歷史紀錄\n\n")
+            return 0
         print("接續之前題目")
     else:
         print("error\n\n")
