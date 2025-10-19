@@ -219,11 +219,14 @@ class GUI:
     def _save_gui_geometry(self):
         try:
             geo = self.window.geometry()
-            output_height = self.output_space.height()
+            # 記錄 splitter 的比例，而不是 output_space 的像素高度
+            sizes = self.splitter.sizes()  # [output_h, input_h]
+            output_ratio = sizes[0] / sum(sizes)
             with open(GUI_PATH, "w", encoding="utf-8") as f:
-                f.write(f"{geo.x()},{geo.y()},{geo.width()},{geo.height()},{output_height},{self.word_size}")
+                f.write(f"{geo.x()},{geo.y()},{geo.width()},{geo.height()},{output_ratio},{self.word_size}")
         except Exception as e:
             self._append_output(f"儲存 GUI 位置失敗: {e}")
+
 
     # --------------------------
     # 讀取 GUI 大小與位置
@@ -232,15 +235,18 @@ class GUI:
         if os.path.exists(GUI_PATH):
             try:
                 with open(GUI_PATH, "r", encoding="utf-8") as f:
-                    parts = list(map(int, f.read().split(",")))
+                    parts = f.read().split(",")
                     if len(parts) == 6:
-                        x, y, w, h, output_h, word_size = parts
-                        self.word_size = word_size
+                        x, y, w, h, output_ratio, word_size = parts
+                        x, y, w, h = map(int, [x, y, w, h])
+                        output_ratio = float(output_ratio)
+                        self.word_size = int(word_size)
                     else:
-                        x, y, w, h = parts
-                        output_h = h * 5 // 6
+                        x, y, w, h = map(int, parts)
+                        output_ratio = 5/6
                     self.window.setGeometry(x, y, w, h)
                     total_height = self.splitter.height() or h
+                    output_h = int(total_height * output_ratio)
                     self.splitter.setSizes([output_h, total_height - output_h])
                     self.output_space.setStyleSheet(f"font-size: {self.word_size}px;")
                     self._append_output("使用 gui.txt 初始化 GUI 大小與位置")
