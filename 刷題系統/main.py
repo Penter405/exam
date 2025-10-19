@@ -335,11 +335,19 @@ def main(dnf,wrong_question_number,information):
         print("\n")
         ob=random.choice(number)
         number.remove(ob)
+
+
+        """
         print(rs.question[ob][0])
         for hahaha in split_q2(rs.question[ob][1]):
             print(hahaha)
         print("tell me the answer \n(if you wanna stop, type 'stop') \n(if you dont know the answer,type 0)")
-        userinput=input()
+        堆疊僅會記錄input  print則不會被記錄
+        """
+        q1=rs.question[ob][0]
+        a1="\n".join(split_q2(rs.question[ob][1]))
+        a2="tell me the answer \n(if you wanna stop, type 'stop') \n(if you dont know the answer,type 0)"
+        userinput=input(f"{q1}\n{a1}\n{a2}")
         if userinput=="stop":
             break
         elif set(userinput)==(rs.question[ob][2]):
