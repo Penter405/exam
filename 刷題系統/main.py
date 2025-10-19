@@ -7,7 +7,7 @@ note = fixed questions and your note
 
 """
 
-
+import sys
 import re
 import random
 import os
@@ -285,12 +285,26 @@ def chatgpt_count_the_file_path_in_data_folder(second_file):
     以上我寫的  沒有跨平台性  只能在window跑
     """
     #以下chatgpt help
-    tosplit=os.path.sep
+    """tosplit=os.path.sep
     bot=chatgpt_get_my_path().split(tosplit)
     bot.pop(-1)
     bot.append("data")
     bot.append(second_file)
     return tosplit.join(bot)
+    該code無法兼容exe檔案
+    """
+    """
+    回傳 data 資料夾內檔案完整路徑
+    無論是在 py 還是打包成 exe 都能正確取得
+    """
+    if getattr(sys, 'frozen', False):
+        # EXE 打包後
+        base = os.path.dirname(sys.executable)
+    else:
+        # 原始 py
+        base = os.path.dirname(os.path.abspath(__file__))
+
+    return os.path.join(base, "data", second_file)
     
 
 

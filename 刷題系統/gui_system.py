@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import QApplication, QWidget, QTextEdit, QLineEdit, QPushBu
 from PyQt6.QtCore import Qt, QTimer
 
 # 基本路徑：上層資料夾的同層 data
-tosplit = os.path.sep
+"""tosplit = os.path.sep
 BASE_PATH = os.path.abspath(__file__)
 DATA_PATH = BASE_PATH.split(tosplit)
 DATA_PATH.pop(-1)
@@ -13,6 +13,17 @@ DATA_PATH = tosplit.join(DATA_PATH)
 GUI_PATH = DATA_PATH.split(tosplit)
 GUI_PATH.append("gui.txt")
 GUI_PATH = tosplit.join(GUI_PATH)
+此程式讓ai知道我想幹啥
+"""
+
+"""
+if not os.path.exists(DATA_PATH):
+    raise FileNotFoundError(f"找不到 data 資料夾，請確認 {DATA_PATH} 是否存在")"""
+
+# 基本路徑：EXE / main.py 所在資料夾
+BASE_PATH = os.path.dirname(os.path.abspath(sys.argv[0]))
+DATA_PATH = os.path.join(BASE_PATH, "data")
+GUI_PATH = os.path.join(DATA_PATH, "gui.txt")
 
 if not os.path.exists(DATA_PATH):
     raise FileNotFoundError(f"找不到 data 資料夾，請確認 {DATA_PATH} 是否存在")
