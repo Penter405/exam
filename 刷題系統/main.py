@@ -13,11 +13,19 @@ import random
 import os
 import ast
 
-
-# main.py 
-from gui_system import GUI 
-# 初始化 GUI，預設 PyQt 
-gui = GUI()
+BASE_PATH = os.path.dirname(os.path.abspath(sys.argv[0]))
+DATA_PATH = os.path.join(BASE_PATH, "data")
+isGUI_PATH = os.path.join(DATA_PATH, "isGUI.txt")
+with open(f"{isGUI_PATH}","r") as p:
+    word=int(p.read())
+    if word:
+        # main.py 
+        from gui_system import GUI 
+        # 初始化 GUI，預設 PyQt 
+        gui = GUI()
+    else:
+        print("no GUI mode")
+        print(f"to change mode, go to {isGUI_PATH}")
 
 
 class exam():
