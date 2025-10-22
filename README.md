@@ -16,7 +16,7 @@
 
 # 如何查看各個版本
 ## 請查看各個branch
-## 由新到舊:try_gui,  OOP, debug_file_path, original
+## 由新到舊:GUI,  OOP, debug_file_path, original
 <img width="1317" height="584" alt="image" src="https://github.com/user-attachments/assets/a78f5048-d88e-46b6-9fdc-7c28a4074e34" />
 
 
