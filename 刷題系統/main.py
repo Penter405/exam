@@ -26,6 +26,20 @@ with open(f"{isGUI_PATH}","r") as p:
     else:
         print("no GUI mode")
         print(f"to change mode, go to {isGUI_PATH}")
+        if getattr(sys, 'frozen', False) and sys.platform == "win32":
+            import ctypes
+            import sys
+            import os
+
+            # 分配新的 console
+            ctypes.windll.kernel32.AllocConsole()
+
+            # 重新綁定 stdin / stdout / stderr
+            sys.stdin = open("CONIN$", "r")
+            sys.stdout = open("CONOUT$", "w")
+            sys.stderr = open("CONOUT$", "w")
+            print("window system console mode(use python file to terminal)")
+
 
 
 class exam():
@@ -325,7 +339,7 @@ def chatgpt_count_the_file_path_in_data_folder(second_file):
 def main(dnf,wrong_question_number,information):
     rs=exam()
     rs.question=rs._load(information,"dict")#print(rs.question)
-    bot=input("新開始 1 \n接續之前題目 0\n")
+    bot=input("新開始 1 \n接續之前題目 0\n查詢題目 2\n依題目查詢答案 3\n")
     if int(bot)==1:
         number=list(rs.question.keys())
         print("新開始")
@@ -335,6 +349,33 @@ def main(dnf,wrong_question_number,information):
             print("error 你沒有歷史紀錄\n\n")
             return 0
         print("接續之前題目")
+    elif int(bot)==2:
+        possible_q=[]
+        word=input("請輸入題目有的字(不包含選項的字):\n")
+        counter=0
+        for number_q in rs.question:
+            if word in rs.question[number_q][0]:
+                possible_q.append(f"{number_q}     {rs.question[number_q][0]}")
+                counter+=1
+            if counter>=10:
+                cheak_10=int(input(f"目前有10個資料(以上含), 如下 , 如果搜尋沒有錯誤請按 1 , 搜尋有誤請按 0, 停止搜尋請按 0:\n{'\n'.join(possible_q)}\n"))
+                match cheak_10:
+                    case 1:
+                        pass
+                    case 0:
+                        print("使用者取消本次查詢")
+                        return 0
+                    case _:
+                        print("input error")
+                        return 0
+        print(f"以下是搜尋結果:\n{'\n'.join(possible_q)}")
+        return 0
+    elif int(bot)==3:
+        while True:
+            number_want=int(input("請輸入題號(停止搜尋請按0):"))
+            if number_want==0:
+                return 0
+            print(rs.question[number_want])
     else:
         print("error\n\n")
         return 0
@@ -426,19 +467,7 @@ def fix_question(question,wrongnumber,note):
 
 
 def test(information):
-    #print(dir(exam))
-    #help(list.insert)
-    #print(dir(set))
-    """rs=exam()
-    rs.question=rs._load(information,"dict")
-    for pe in [2013,1248]:
-        print(rs.question[pe])"""
-    # 測試 input/print
-    name = input("Enter your name:")
-    print(f"Hello, {name}!")
-
-    age = input("Enter your age:")
-    print("Your age is", age)
+    pass
 
 
 def initialize(sub_file,ob_file,bad):
@@ -458,6 +487,7 @@ if nothing in the file_name.txt:
     print("nothing in the exam system\ninput 'add' to add")
 """
 while True:
+    rs=exam()
     which_exam=input("退出刷題系統 quit\n新增 add\n乙檢 1\n丙檢 2\n")
     print("\n")
     if which_exam=="quit":
@@ -471,13 +501,20 @@ while True:
     else:
         print("input error\n\n")
         continue
-    bot=int(input("main 1\nfix_question 2\ntest 3\ninitialize 0\n"))
+    bot=int(input("main 1\nfix_question 2\nchange GUI mode 3\ntest 4\ninitialize 0\n"))
     match bot:
         case 1:
             main(file[1],file[3],file[2])
         case 2:
             fix_question(file[2],file[3],file[4])
         case 3:
+            if int(rs._load("isGUI.txt","str"))==1:
+                todo=0
+            else:
+                todo=1
+            rs._chatgpt_save(str(todo),"isGUI.txt","w",False)
+            print("此次設定將於退出刷題系統後生效")
+        case 4:
             test(file[2])
         case 0:
             initialize(file[0],file[2],bad)
