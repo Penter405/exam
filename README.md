@@ -24,9 +24,13 @@
 
 
 # 下載zip檔案
-
+## 古早方式
 
 https://github.com/user-attachments/assets/5b466c36-8420-4f96-9bf8-7e3a686be25c
+
+## 高級方式
+
+<img width="244" height="99" alt="image" src="https://github.com/user-attachments/assets/e70dd581-a7ac-4a15-af98-15f1ac1b1719" />
 
 
 # 開發者上傳code與版本管理
