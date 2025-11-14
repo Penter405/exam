@@ -73,3 +73,25 @@ https://github.com/user-attachments/assets/da86b0b8-d280-45c4-b9d1-12c98b35cedd
 #### 將檢定PDF轉換成txt後 會出現紅色FF in vscode
 #### 經作者測試  replace("\x0c","")可以解決紅色FF
 <img width="207" height="73" alt="image" src="https://github.com/user-attachments/assets/50d7453c-d636-4932-aa05-dc2b47ed3f48" />
+
+
+# 查題目(by chatGPT)
+## 複製功能,開f12貼到console
+
+ ```
+document.querySelectorAll('*').forEach(el=>{el.style.userSelect='auto';el.onselectstart=null;});if(window.jQuery){$("*").off("selectstart");}
+ ```
+
+## 取消複製,開f12貼到console
+
+```
+document.body.setAttribute('unselectable','on');
+document.body.style.userSelect = 'none';
+document.body.style.webkitUserSelect = 'none';
+document.body.style.msUserSelect = 'none';
+document.body.style.mozUserSelect = 'none';
+document.body.style.oUserSelect = 'none';
+document.body.onselectstart = ()=>false;
+if(window.jQuery){$("body").on("selectstart", ()=>false);}
+
+```
