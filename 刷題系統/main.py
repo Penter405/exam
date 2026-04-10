@@ -341,8 +341,16 @@ def main(dnf,wrong_question_number,information):
     rs.question=rs._load(information,"dict")#print(rs.question)
     bot=input("新開始 1 \n接續之前題目 0\n查詢題目 2\n依題目查詢答案 3\n")
     if int(bot)==1:
-        number=list(rs.question.keys())
         print("新開始")
+        lesson=input("請輸入想要的題組(1或34等) ,如果輸入all ,則全部:\n")
+        if lesson=="all":
+            number=list(rs.question.keys())
+        else:
+            lesson=list(lesson)
+            number=list()
+            for botbot in rs.question.keys():
+                if str(botbot)[0] in lesson:
+                    number.append(botbot)
     elif int(bot)==0:
         number=rs._load(dnf,"list")
         if number==0:
