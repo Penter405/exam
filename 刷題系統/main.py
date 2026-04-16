@@ -367,6 +367,8 @@ def main(dnf,wrong_question_number,information):
                 counter+=1
             if counter>=10:
                 cheak_10=int(input(f"目前有10個資料(以上含), 如下 , 如果搜尋沒有錯誤請按 1 , 搜尋有誤請按 0, 停止搜尋請按 0:\n{'\n'.join(possible_q)}\n"))
+                possible_q=[]
+                counter=0
                 match cheak_10:
                     case 1:
                         pass
