@@ -1,3 +1,5 @@
+# warning, the exe and release is not fetch lastest main.py, only html fetch
+
 # 刷題系統
 ### 你好 我是Penter 如果你想使用此程式來練習丙檢與乙檢 請遵守以下規則:
 #### 1.刷題系統內的檔案（如 `data` 資料夾及其內部檔案）請勿隨意更改或移動檔案路徑。程式已經依照固定路徑設計，如果更改檔案結構或路徑，可能會導致程式無法正常運行。

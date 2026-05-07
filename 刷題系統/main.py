@@ -246,7 +246,7 @@ class exam():
             """
             cheak if any wrong
             bot=int(input("繼續 1\n停下 2\n"))
-            match bot:
+            match bot:，
                 case 1:
                     pass
                 case 2:
@@ -254,7 +254,17 @@ class exam():
                     return 0
             """
         return result
-
+    def two_pointer_search(self,a,b):
+        int index_of_a=0
+        int out_of_index=len(a)
+        for bot in str(b):
+            if index_of_a>=out_of_index:
+                return 1
+            if a[index_of_a]==bot:
+                index_of_a+=1
+        if index_of_a>=out_of_index:
+                return 1
+        return 0
 
 def split_q2(ob:str)->list:
     a1=ob.split("②")[0]
@@ -342,14 +352,20 @@ def main(dnf,wrong_question_number,information):
     bot=input("新開始 1 \n接續之前題目 0\n查詢題目 2\n依題目查詢答案 3\n")
     if int(bot)==1:
         print("新開始")
-        lesson=input("請輸入想要的題組(1或34等) ,如果輸入all ,則全部:\n")
+        lesson=input("請輸入想要的題組(1或34等) ,如果輸入all ,則全部:\n 若你想要搜尋題組範圍，請輸入 '1001-1005' 以表示題組1的一到五題，以此類推")
         if lesson=="all":
             number=list(rs.question.keys())
-        else:
+        elif lesson>0 and lesson<10:
             lesson=list(lesson)
             number=list()
             for botbot in rs.question.keys():
                 if str(botbot)[0] in lesson:
+                    number.append(botbot)
+        else:
+            lesson=map(int,(lesson.split("-")))
+            number=list()
+            for botbot in rs.question.keys():
+                if int(botbot)>=lesson[0] and int(botbot)<=lesson[1]:
                     number.append(botbot)
     elif int(bot)==0:
         number=rs._load(dnf,"list")
@@ -360,9 +376,10 @@ def main(dnf,wrong_question_number,information):
     elif int(bot)==2:
         possible_q=[]
         word=input("請輸入題目有的字(不包含選項的字):\n")
+        is_better_search_choose=int(input("是否高級搜尋(two pointer) 1 是  /  0 否:\n"))
         counter=0
         for number_q in rs.question:
-            if word in rs.question[number_q][0]:
+            if (is_better_search_choose==1 and rs.two_pointer_search(word,rs.question[number_q][0])) or (is_better_search_choose==0 and (word in rs.question[number_q][0])):
                 possible_q.append(f"{number_q}     {rs.question[number_q][0]}")
                 counter+=1
             if counter>=10:
