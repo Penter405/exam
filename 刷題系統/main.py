@@ -255,8 +255,8 @@ class exam():
             """
         return result
     def two_pointer_search(self,a,b):
-        int index_of_a=0
-        int out_of_index=len(a)
+        index_of_a=0
+        out_of_index=len(a)
         for bot in str(b):
             if index_of_a>=out_of_index:
                 return 1
@@ -521,7 +521,7 @@ while True:
         break
     if which_exam=="1":
         file=["data2.txt","did_not_finish2.txt","imformation2.txt","wrong_question_number2.txt","note2.txt"]
-        bad=["of 64","電腦軟體應用 乙級 工作項目"]
+        bad=["of 63","電腦軟體應用 乙級 工作項目"]
     elif which_exam=="2":
         file=["data.txt","did_not_finish.txt","imformation.txt","wrong_question_number.txt","note.txt"]
         bad=["of 49","電腦軟體應用 丙級 工作項目"]
