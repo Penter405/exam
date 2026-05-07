@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>刷題系統</title>
+    <link rel="stylesheet" href="docs/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>刷題系統</h1>
+        
+        <div class="exam-selector">
+            <h2>選擇考試類型</h2>
+            <button onclick="selectExam('1')">乙檢</button>
+            <button onclick="selectExam('2')">丙檢</button>
+        </div>
+        
+        <div id="main-menu" class="hidden">
+            <h2>主選單</h2>
+            <button onclick="startNewQuiz()">新開始</button>
+            <button onclick="continueQuiz()">接續之前題目</button>
+            <button onclick="searchQuestions()">查詢題目</button>
+            <button onclick="searchAnswers()">依題目查詢答案</button>
+            <button onclick="fixWrongQuestions()">訂正錯題</button>
+            <button onclick="initializeData()">初始化資料</button>
+            <button onclick="uploadProcessedData()">上傳已處理資料</button>
+            <button onclick="downloadData()">下載資料檔案</button>
+        </div>
+        
+        <div id="quiz-area" class="hidden">
+            <div id="question-display"></div>
+            <input type="text" id="answer-input" placeholder="輸入答案">
+            <button onclick="submitAnswer()">提交答案</button>
+            <button onclick="stopQuiz()">停止</button>
+        </div>
+        
+        <div id="search-area" class="hidden">
+            <input type="text" id="search-input" placeholder="輸入題目關鍵字">
+            <button onclick="performSearch()">搜尋</button>
+            <div id="search-results"></div>
+        </div>
+        
+        <div id="file-upload" class="hidden">
+            <input type="file" id="file-input" multiple>
+            <button onclick="uploadFiles()">上傳檔案</button>
+        </div>
+        
+        <div id="output"></div>
+    </div>
+    
+    <script src="docs/script.js"></script>
+</body>
+</html>
