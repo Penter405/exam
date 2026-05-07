@@ -10,19 +10,73 @@ class ExamSystem {
         this.currentIndex = 0;
     }
 
-    // 載入資料從 localStorage 或檔案
-    loadData(type) {
+    // 載入資料從 GitHub 或 localStorage
+    async loadData(type) {
         const key = `${this.currentExam}_${type}`;
-        const data = localStorage.getItem(key);
-        if (data) {
+        const localData = localStorage.getItem(key);
+        if (localData) {
             try {
-                return JSON.parse(data);
+                return JSON.parse(localData);
             } catch {
-                // 如果不是 JSON，可能是舊格式的文字
-                return data;
+                return localData;
             }
         }
+
+        // 嘗試從 GitHub 獲取
+        try {
+            const githubData = await this.fetchFromGitHub(type);
+            if (githubData) {
+                this.saveData(type, githubData);
+                return githubData;
+            }
+        } catch (error) {
+            console.log(`無法從 GitHub 獲取 ${type} 資料:`, error);
+        }
+
         return type === 'questions' ? {} : [];
+    }
+
+    // 從 GitHub 獲取資料
+    async fetchFromGitHub(type) {
+        const fileMap = {
+            '1': { // 乙檢
+                'questions': 'imformation2.txt',
+                'didNotFinish': 'did_not_finish2.txt',
+                'wrongQuestions': 'wrong_question_number2.txt',
+                'notes': 'note2.txt'
+            },
+            '2': { // 丙檢
+                'questions': 'imformation.txt',
+                'didNotFinish': 'did_not_finish.txt',
+                'wrongQuestions': 'wrong_question_number.txt',
+                'notes': 'note.txt'
+            }
+        };
+
+        const fileName = fileMap[this.currentExam]?.[type];
+        if (!fileName) return null;
+
+        const url = `刷題系統/data/${fileName}`;
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) return null;
+            
+            const content = await response.text();
+            
+            if (type === 'questions') {
+                // 解析問題資料
+                return this.parsePythonDict(content);
+            } else if (type === 'didNotFinish' || type === 'wrongQuestions') {
+                // 解析列表資料
+                return content.split('\n').filter(line => line.trim()).map(line => parseInt(line) || line);
+            } else {
+                return content;
+            }
+        } catch (error) {
+            console.error(`獲取 ${fileName} 失敗:`, error);
+            return null;
+        }
     }
 
     // 儲存資料到 localStorage
@@ -134,18 +188,29 @@ class ExamSystem {
         let questionNumbers = [];
         if (lesson === 'all') {
             questionNumbers = Object.keys(this.questions).map(Number);
+        } else if (/^\d+$/.test(lesson) && parseInt(lesson) > 0 && parseInt(lesson) < 10) {
+            // 單個數字，選擇該題組的所有題目
+            const lessonNum = lesson;
+            questionNumbers = Object.keys(this.questions)
+                .map(Number)
+                .filter(num => Math.floor(num / 1000) == lessonNum);
         } else if (lesson.includes('-')) {
+            // 範圍選擇，如 "1001-1005"
             const [start, end] = lesson.split('-').map(Number);
             questionNumbers = Object.keys(this.questions)
                 .map(Number)
                 .filter(num => num >= start && num <= end);
         } else {
-            questionNumbers = Object.keys(this.questions)
-                .map(Number)
-                .filter(num => Math.floor(num / 1000) == lesson);
+            alert('輸入格式錯誤，請輸入 all、單個數字(1-9)或範圍(1001-1005)');
+            return;
         }
 
-        this.currentQuestions = questionNumbers;
+        if (questionNumbers.length === 0) {
+            alert('找不到符合條件的題目');
+            return;
+        }
+
+        this.currentQuestions = questionNumbers.sort((a, b) => a - b);
         this.currentIndex = 0;
         this.didNotFinish = [];
         this.saveData('didNotFinish', this.didNotFinish);
@@ -375,7 +440,7 @@ function selectExam(examType) {
 }
 
 function startNewQuiz() {
-    const lesson = prompt('請輸入想要的題組 (all 或 1-1000 等):');
+    const lesson = prompt('請輸入想要的題組(1或34等) ,如果輸入all ,則全部:\n 若你想要搜尋題組範圍，請輸入 \'1001-1005\' 以表示題組1的一到五題，以此類推');
     if (lesson) {
         examSystem.startNewQuiz(lesson);
     }

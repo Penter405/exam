@@ -1,5 +1,5 @@
 # warning, the exe and release is not fetch lastest main.py, only html fetch
-
+# [website_link](https://penter405.github.io/exam/)
 # 刷題系統
 
 ### 你好 我是Penter 如果你想使用此程式來練習丙檢與乙檢 請遵守以下規則:
