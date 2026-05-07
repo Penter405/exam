@@ -6,386 +6,146 @@ class ExamSystem {
         this.didNotFinish = [];
         this.wrongQuestions = [];
         this.currentExam = null;
-        this.currentQuestions = [];
-        this.currentIndex = 0;
+        this.currentQuestionPool = []; // remaining questions (random pick & remove)
+        this.currentQuestionNum = null;
     }
 
-    // 載入資料從 GitHub 或 localStorage
-    async loadData(type) {
-        const key = `${this.currentExam}_${type}`;
-        const localData = localStorage.getItem(key);
-        if (localData) {
-            try {
-                return JSON.parse(localData);
-            } catch {
-                return localData;
-            }
+    // --- 檔案對應 (match main.py lines 522-527) ---
+    getFileMap(examType) {
+        if (examType === '1') {
+            return {
+                data: 'data2.txt',
+                didNotFinish: 'did_not_finish2.txt',
+                questions: 'imformation2.txt',
+                wrongQuestions: 'wrong_question_number2.txt',
+                notes: 'note2.txt',
+                bad: ['of 64', '電腦軟體應用 乙級 工作項目']
+            };
+        } else if (examType === '2') {
+            return {
+                data: 'data.txt',
+                didNotFinish: 'did_not_finish.txt',
+                questions: 'imformation.txt',
+                wrongQuestions: 'wrong_question_number.txt',
+                notes: 'note.txt',
+                bad: ['of 49', '電腦軟體應用 丙級 工作項目']
+            };
         }
-
-        // 嘗試從 GitHub 獲取
-        try {
-            const githubData = await this.fetchFromGitHub(type);
-            if (githubData) {
-                this.saveData(type, githubData);
-                return githubData;
-            }
-        } catch (error) {
-            console.log(`無法從 GitHub 獲取 ${type} 資料:`, error);
-        }
-
-        return type === 'questions' ? {} : [];
+        return null;
     }
 
-    // 從 GitHub 獲取資料
-    async fetchFromGitHub(type) {
-        const fileMap = {
-            '1': { // 乙檢
-                'questions': 'imformation2.txt',
-                'didNotFinish': 'did_not_finish2.txt',
-                'wrongQuestions': 'wrong_question_number2.txt',
-                'notes': 'note2.txt'
-            },
-            '2': { // 丙檢
-                'questions': 'imformation.txt',
-                'didNotFinish': 'did_not_finish.txt',
-                'wrongQuestions': 'wrong_question_number.txt',
-                'notes': 'note.txt'
-            }
-        };
-
-        const fileName = fileMap[this.currentExam]?.[type];
-        if (!fileName) return null;
-
-        const url = `刷題系統/data/${fileName}`;
-        
-        try {
-            const response = await fetch(url);
-            if (!response.ok) return null;
-            
-            const content = await response.text();
-            
-            if (type === 'questions') {
-                // 解析問題資料
-                return this.parsePythonDict(content);
-            } else if (type === 'didNotFinish' || type === 'wrongQuestions') {
-                // 解析列表資料
-                return content.split('\n').filter(line => line.trim()).map(line => parseInt(line) || line);
-            } else {
-                return content;
-            }
-        } catch (error) {
-            console.error(`獲取 ${fileName} 失敗:`, error);
-            return null;
-        }
-    }
-
-    // 儲存資料到 localStorage
+    // --- localStorage 讀寫 ---
     saveData(type, data) {
         const key = `${this.currentExam}_${type}`;
-        if (typeof data === 'object') {
-            localStorage.setItem(key, JSON.stringify(data));
-        } else {
-            localStorage.setItem(key, data);
-        }
+        localStorage.setItem(key, JSON.stringify(data));
     }
 
-    // 處理原始資料轉換為問題格式 (類似 _useful_data_to_right_data 和 _right_data_to_question)
-    processRawData(rawText) {
-        // 移除無用行
-        const lines = rawText.split('\n');
-        const usefulLines = lines.filter(line => 
-            line.trim() && 
-            !line.includes('of 49') && 
-            !line.includes('of 64') && 
-            !line.includes('電腦軟體應用')
-        );
-
-        // 合併被分割的問題
-        const rightData = [];
-        let currentQuestion = '';
-
-        for (const line of usefulLines) {
-            const cleanLine = line.replace(/\x0c/g, '');
-            if (cleanLine.match(/^\d+\./)) {
-                if (currentQuestion) {
-                    rightData.push(currentQuestion.trim());
-                }
-                currentQuestion = cleanLine;
-            } else {
-                currentQuestion += '。\n' + cleanLine;
-            }
+    loadLocal(type) {
+        const key = `${this.currentExam}_${type}`;
+        const raw = localStorage.getItem(key);
+        if (raw) {
+            try { return JSON.parse(raw); } catch { return raw; }
         }
-        if (currentQuestion) {
-            rightData.push(currentQuestion.trim());
-        }
-
-        // 轉換為問題格式
-        const questions = {};
-        let mainQ = 0;
-        let lastNumber = -1;
-
-        for (const questionText of rightData) {
-            const match = questionText.match(/^(\d+)\.\s*\(([^)]+)\)\s*(.+?)\s*①(.+)$/s);
-            if (match) {
-                const number = parseInt(match[1]);
-                const answerStr = match[2];
-                const q1 = match[3].trim();
-                const q2 = '①' + match[4];
-
-                const answer = this.getCorrectAnswer(answerStr);
-
-                if (lastNumber === -1 || number < lastNumber) {
-                    mainQ++;
-                }
-                lastNumber = number;
-
-                questions[mainQ * 1000 + number] = [q1, q2, answer];
-            }
-        }
-
-        return questions;
+        return null;
     }
 
-    // 取得正確答案
-    getCorrectAnswer(string) {
-        const answers = new Set();
-        for (const char of string) {
-            if ('1234'.includes(char)) {
-                answers.add(char);
-            }
-        }
-        return Array.from(answers);
-    }
-
-    // 分割選項
-    splitOptions(optionsText) {
-        const options = [];
-        let current = '';
-        let optionNum = 1;
-
-        for (const char of optionsText) {
-            if (char === '①' || char === '②' || char === '③' || char === '④') {
-                if (current) options.push(current);
-                current = char;
-                optionNum++;
-            } else {
-                current += char;
-            }
-        }
-        if (current) options.push(current);
-
-        return options;
-    }
-
-    // 開始新測驗
-    startNewQuiz(lesson) {
-        this.questions = this.loadData('questions');
-        if (Object.keys(this.questions).length === 0) {
-            alert('沒有題目資料，請先初始化或上傳資料');
-            return;
-        }
-
-        let questionNumbers = [];
-        if (lesson === 'all') {
-            questionNumbers = Object.keys(this.questions).map(Number);
-        } else if (/^\d+$/.test(lesson) && parseInt(lesson) > 0 && parseInt(lesson) < 10) {
-            // 單個數字，選擇該題組的所有題目
-            const lessonNum = lesson;
-            questionNumbers = Object.keys(this.questions)
-                .map(Number)
-                .filter(num => Math.floor(num / 1000) == lessonNum);
-        } else if (lesson.includes('-')) {
-            // 範圍選擇，如 "1001-1005"
-            const [start, end] = lesson.split('-').map(Number);
-            questionNumbers = Object.keys(this.questions)
-                .map(Number)
-                .filter(num => num >= start && num <= end);
-        } else {
-            alert('輸入格式錯誤，請輸入 all、單個數字(1-9)或範圍(1001-1005)');
-            return;
-        }
-
-        if (questionNumbers.length === 0) {
-            alert('找不到符合條件的題目');
-            return;
-        }
-
-        this.currentQuestions = questionNumbers.sort((a, b) => a - b);
-        this.currentIndex = 0;
-        this.didNotFinish = [];
-        this.saveData('didNotFinish', this.didNotFinish);
-        this.showQuestion();
-    }
-
-    // 繼續測驗
-    continueQuiz() {
-        this.questions = this.loadData('questions');
-        this.didNotFinish = this.loadData('didNotFinish');
-        this.currentQuestions = [...this.didNotFinish];
-        this.currentIndex = 0;
-        if (this.currentQuestions.length === 0) {
-            alert('沒有未完成的題目');
-            return;
-        }
-        this.showQuestion();
-    }
-
-    // 顯示問題
-    showQuestion() {
-        if (this.currentIndex >= this.currentQuestions.length) {
-            alert('測驗完成！');
-            this.saveData('didNotFinish', []);
-            return;
-        }
-
-        const qNum = this.currentQuestions[this.currentIndex];
-        const question = this.questions[qNum];
-        const options = this.splitOptions(question[1]);
-
-        const questionHtml = `
-            <h3>題號: ${qNum}</h3>
-            <p>${question[0]}</p>
-            <div>${options.join('<br>')}</div>
-        `;
-
-        document.getElementById('question-display').innerHTML = questionHtml;
-        document.getElementById('quiz-area').classList.remove('hidden');
-        document.getElementById('answer-input').focus();
-    }
-
-    // 提交答案
-    submitAnswer() {
-        const userAnswer = document.getElementById('answer-input').value.trim();
-        const qNum = this.currentQuestions[this.currentIndex];
-        const correctAnswer = this.questions[qNum][2];
-
-        if (userAnswer.toLowerCase() === 'stop') {
-            this.stopQuiz();
-            return;
-        }
-
-        const userSet = new Set(userAnswer.split(''));
-        const correctSet = new Set(correctAnswer);
-
-        if (this.setsEqual(userSet, correctSet)) {
-            alert('正確！');
-        } else {
-            alert(`錯誤。正確答案是: ${correctAnswer.join('')}`);
-            this.wrongQuestions.push(qNum);
-            this.saveData('wrongQuestions', this.wrongQuestions);
-        }
-
-        this.currentIndex++;
-        this.didNotFinish = this.currentQuestions.slice(this.currentIndex);
-        this.saveData('didNotFinish', this.didNotFinish);
-        document.getElementById('answer-input').value = '';
-        this.showQuestion();
-    }
-
-    // 停止測驗
-    stopQuiz() {
-        this.saveData('didNotFinish', this.currentQuestions.slice(this.currentIndex));
-        document.getElementById('quiz-area').classList.add('hidden');
-        alert('測驗已停止');
-    }
-
-    // 搜尋題目
-    searchQuestions(keyword, useTwoPointer = false) {
-        const results = [];
-        for (const [num, question] of Object.entries(this.questions)) {
-            const questionText = question[0];
-            let found = false;
-            if (useTwoPointer) {
-                found = this.twoPointerSearch(keyword, questionText);
-            } else {
-                found = questionText.includes(keyword);
-            }
-            if (found) {
-                results.push(`${num}: ${questionText}`);
-            }
-        }
-        return results;
-    }
-
-    // 兩指標搜尋
-    twoPointerSearch(pattern, text) {
-        let i = 0;
-        for (const char of text) {
-            if (i < pattern.length && char === pattern[i]) {
-                i++;
-            }
-        }
-        return i === pattern.length;
-    }
-
-    // 查詢答案
-    getAnswer(questionNum) {
-        const question = this.questions[questionNum];
-        if (question) {
-            return question[2].join('');
-        }
-        return '題目不存在';
-    }
-
-    // 訂正錯題
-    fixWrongQuestions() {
-        this.wrongQuestions = this.loadData('wrongQuestions');
-        if (this.wrongQuestions.length === 0) {
-            alert('沒有錯題');
-            return;
-        }
-
-        // 這裡可以實作訂正介面
-        alert('訂正功能待實作');
-    }
-
-    // 取得內建考試設定
-    getExamConfig(examType) {
-        const configs = {
-            '1': {
-                name: '乙檢',
-                raw: '刷題系統/data/data2.txt',
-                bad: ['of 64', '電腦軟體應用 乙級 工作項目']
-            },
-            '2': {
-                name: '丙檢',
-                raw: '刷題系統/data/data.txt',
-                bad: ['of 49', '電腦軟體應用 丙級 工作項目']
-            }
-        };
-        return configs[examType] || null;
-    }
-
-    // 初始化資料
-    async initializeData(rawData) {
-        const questions = this.processRawData(rawData);
-        this.questions = questions;
-        this.saveData('questions', questions);
-        alert('資料初始化完成');
-    }
-
-    async initializeExamData(examType) {
-        const config = this.getExamConfig(examType);
-        if (!config) {
-            alert('考試類型不存在，請選擇 1 或 2');
-            return;
-        }
+    // --- 從 GitHub 讀取並快取 ---
+    async loadData(type) {
+        const local = this.loadLocal(type);
+        if (local !== null) return local;
 
         try {
-            const response = await fetch(config.raw);
-            if (!response.ok) {
-                throw new Error(`無法讀取檔案: ${config.raw}`);
+            const fileMap = this.getFileMap(this.currentExam);
+            if (!fileMap || !fileMap[type]) return type === 'questions' ? {} : [];
+            const url = `刷題系統/data/${fileMap[type]}`;
+            const resp = await fetch(url);
+            if (!resp.ok) return type === 'questions' ? {} : [];
+            const content = await resp.text();
+
+            if (type === 'questions') {
+                const parsed = this.parsePythonDict(content);
+                this.saveData(type, parsed);
+                return parsed;
+            } else if (type === 'didNotFinish' || type === 'wrongQuestions') {
+                const list = content.split('\n').filter(l => l.trim() !== '').map(l => parseInt(l) || l);
+                this.saveData(type, list);
+                return list;
             }
-            const rawData = await response.text();
-            await this.initializeData(rawData);
-            alert(`${config.name} 資料初始化完成`);
-        } catch (error) {
-            console.error('初始化失敗:', error);
-            alert('初始化失敗，請確認資料檔案是否存在於 刷題系統/data');
+            return content;
+        } catch (e) {
+            console.error(`載入 ${type} 失敗:`, e);
+            return type === 'questions' ? {} : [];
         }
     }
 
-    // 集合比較
+    // --- 解析 Python dict (處理 set 格式的答案) ---
+    parsePythonDict(content) {
+        try {
+            // Python dict 格式: {1001: ['q1', 'q2', {'1', '2'}], ...}
+            // 1. 把 set 格式 {'1', '2'} 轉成 array ['1', '2']
+            let s = content.trim();
+            // Replace Python sets {x, y} with arrays [x, y]
+            // Match { followed by quoted items separated by commas, ending with }
+            // But avoid matching the outer dict braces
+            s = s.replace(/\{(\s*'[^']*'(?:\s*,\s*'[^']*')*\s*)\}/g, '[$1]');
+            // Replace single quotes with double quotes
+            s = s.replace(/'/g, '"');
+            return JSON.parse(s);
+        } catch (e) {
+            console.error('parsePythonDict 失敗:', e);
+            // Fallback: try line-by-line parsing
+            try {
+                return this.parsePythonDictFallback(content);
+            } catch {
+                return {};
+            }
+        }
+    }
+
+    parsePythonDictFallback(content) {
+        const result = {};
+        // Match pattern: key: [value1, value2, {answers}]
+        const regex = /(\d+)\s*:\s*\[([^\]]*?),\s*'([^']*)',\s*\{([^}]*)\}\]/g;
+        let match;
+        while ((match = regex.exec(content)) !== null) {
+            const key = parseInt(match[1]);
+            const q1 = match[2].replace(/^'|'$/g, '');
+            const q2 = match[3];
+            const answers = match[4].split(',').map(a => a.trim().replace(/'/g, ''));
+            result[key] = [q1, q2, answers];
+        }
+        return result;
+    }
+
+    // --- 取得正確答案 (match main.py get_correct_answer) ---
+    getCorrectAnswer(string) {
+        const result = new Set();
+        for (const ch of string) {
+            const n = parseInt(ch);
+            if (!isNaN(n)) {
+                result.add(String(n));
+            } else {
+                break; // Python: except -> return result
+            }
+        }
+        return Array.from(result);
+    }
+
+    // --- 分割選項 (match main.py split_q2) ---
+    splitOptions(ob) {
+        const parts = ob.split('②');
+        const a1 = parts[0];
+        const rest1 = '②' + parts[1];
+        const parts2 = rest1.split('③');
+        const a2 = parts2[0];
+        const rest2 = '③' + parts2[1];
+        const parts3 = rest2.split('④');
+        const a3 = parts3[0];
+        const a4 = '④' + parts3[1];
+        return [a1, a2, a3, a4];
+    }
+
+    // --- 集合比較 (match main.py set(userinput)==rs.question[ob][2]) ---
     setsEqual(set1, set2) {
         if (set1.size !== set2.size) return false;
         for (const item of set1) {
@@ -394,57 +154,337 @@ class ExamSystem {
         return true;
     }
 
-    // 上傳檔案
-    uploadFiles(files) {
-        for (const file of files) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const content = e.target.result;
-                let parsedContent;
-                
-                if (file.name.includes('imformation')) {
-                    // 問題資料，嘗試解析為 dict
-                    try {
-                        parsedContent = JSON.parse(content);
-                    } catch {
-                        // 如果失敗，可能是 Python dict 格式
-                        parsedContent = this.parsePythonDict(content);
-                    }
-                } else if (file.name.includes('did_not_finish') || file.name.includes('wrong_question_number')) {
-                    // 列表資料
-                    try {
-                        parsedContent = JSON.parse(content);
-                    } catch {
-                        parsedContent = content.split('\n').filter(line => line.trim());
-                    }
+    // --- 新開始 (match main.py main() bot==1) ---
+    async startNewQuiz(lesson) {
+        this.questions = await this.loadData('questions');
+        if (!this.questions || Object.keys(this.questions).length === 0) {
+            showOutput('沒有題目資料，請先初始化或上傳資料');
+            return;
+        }
+
+        let number = [];
+        if (lesson === 'all') {
+            // main.py: number=list(rs.question.keys())
+            number = Object.keys(this.questions).map(Number);
+        } else if (lesson.includes('-')) {
+            // main.py: lesson=map(int,(lesson.split("-")))
+            const parts = lesson.split('-').map(Number);
+            const start = parts[0], end = parts[1];
+            number = Object.keys(this.questions).map(Number)
+                .filter(k => k >= start && k <= end);
+        } else {
+            // main.py: lesson=list(lesson) then check str(botbot)[0] in lesson
+            // e.g. "34" -> ['3','4'], matches keys starting with '3' or '4'
+            const digits = lesson.split('');
+            number = Object.keys(this.questions).map(Number)
+                .filter(k => digits.includes(String(k)[0]));
+        }
+
+        if (number.length === 0) {
+            showOutput('找不到符合條件的題目');
+            return;
+        }
+
+        this.currentQuestionPool = number;
+        this.wrongQuestions = [];
+        this.showNextQuestion();
+    }
+
+    // --- 接續之前題目 (match main.py main() bot==0) ---
+    async continueQuiz() {
+        this.questions = await this.loadData('questions');
+        const dnf = await this.loadData('didNotFinish');
+        if (!dnf || dnf.length === 0) {
+            showOutput('error 你沒有歷史紀錄');
+            return;
+        }
+        this.currentQuestionPool = [...dnf];
+        this.wrongQuestions = [];
+        this.showNextQuestion();
+    }
+
+    // --- 隨機選題並顯示 (match main.py: ob=random.choice(number); number.remove(ob)) ---
+    showNextQuestion() {
+        if (this.currentQuestionPool.length === 0) {
+            this.finishQuiz();
+            return;
+        }
+
+        // Random choice like main.py
+        const idx = Math.floor(Math.random() * this.currentQuestionPool.length);
+        const ob = this.currentQuestionPool[idx];
+        this.currentQuestionPool.splice(idx, 1);
+        this.currentQuestionNum = ob;
+
+        const q = this.questions[ob];
+        if (!q) {
+            showOutput(`題目 ${ob} 不存在`);
+            this.showNextQuestion();
+            return;
+        }
+
+        let optionsHtml;
+        try {
+            const options = this.splitOptions(q[1]);
+            optionsHtml = options.map(o => `<div class="option">${o}</div>`).join('');
+        } catch {
+            optionsHtml = `<div class="option">${q[1]}</div>`;
+        }
+
+        const html = `
+            <h3>題號: ${ob}</h3>
+            <p>${q[0]}</p>
+            <div>${optionsHtml}</div>
+            <p class="hint">輸入答案 (輸入 'stop' 停止, 不知道答案輸入 0)</p>
+            <p class="remaining">剩餘 ${this.currentQuestionPool.length} 題</p>
+        `;
+
+        document.getElementById('question-display').innerHTML = html;
+        document.getElementById('quiz-area').classList.remove('hidden');
+        document.getElementById('main-menu').classList.add('hidden');
+        document.getElementById('answer-input').value = '';
+        document.getElementById('answer-input').focus();
+    }
+
+    // --- 提交答案 (match main.py answer checking) ---
+    submitAnswer() {
+        const input = document.getElementById('answer-input').value.trim();
+        const ob = this.currentQuestionNum;
+        const q = this.questions[ob];
+
+        if (input.toLowerCase() === 'stop') {
+            this.stopQuiz();
+            return;
+        }
+
+        // main.py: set(userinput)==(rs.question[ob][2])
+        const userSet = new Set(input.split(''));
+        const correctSet = new Set(q[2]);
+
+        let resultMsg = '';
+        if (this.setsEqual(userSet, correctSet)) {
+            resultMsg = '✅ correct';
+        } else {
+            resultMsg = `❌ wrong\nthe answer is: ${Array.from(q[2]).join('')}`;
+            this.wrongQuestions.push(String(ob));
+        }
+        resultMsg += `\nthe question is  ${ob}`;
+        showOutput(resultMsg);
+
+        // Save progress
+        this.saveData('didNotFinish', this.currentQuestionPool);
+
+        this.showNextQuestion();
+    }
+
+    // --- 停止 (match main.py: break then save) ---
+    stopQuiz() {
+        // main.py saves wrongQuestions (append) and didNotFinish
+        this.appendWrongQuestions();
+        this.saveData('didNotFinish', this.currentQuestionPool);
+
+        document.getElementById('quiz-area').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+        showOutput(`測驗已停止\n錯題: ${this.wrongQuestions.join(', ') || '無'}\n未完成題數: ${this.currentQuestionPool.length}`);
+    }
+
+    finishQuiz() {
+        this.appendWrongQuestions();
+        this.saveData('didNotFinish', []);
+
+        document.getElementById('quiz-area').classList.add('hidden');
+        document.getElementById('main-menu').classList.remove('hidden');
+        showOutput(`測驗完成！\n錯題: ${this.wrongQuestions.join(', ') || '無'}`);
+    }
+
+    // main.py appends wrong questions to file, not replaces
+    appendWrongQuestions() {
+        const existing = this.loadLocal('wrongQuestions') || [];
+        const merged = existing.concat(this.wrongQuestions);
+        this.saveData('wrongQuestions', merged);
+    }
+
+    // --- 查詢題目 (match main.py bot==2) ---
+    async searchQuestions(keyword, useTwoPointer = false) {
+        this.questions = await this.loadData('questions');
+        const results = [];
+        for (const [num, q] of Object.entries(this.questions)) {
+            let found = false;
+            if (useTwoPointer) {
+                found = this.twoPointerSearch(keyword, q[0]);
+            } else {
+                found = q[0].includes(keyword);
+            }
+            if (found) {
+                results.push(`${num}     ${q[0]}`);
+            }
+        }
+        return results;
+    }
+
+    // --- 兩指標搜尋 (match main.py two_pointer_search) ---
+    twoPointerSearch(a, b) {
+        let indexA = 0;
+        const outOfIndex = a.length;
+        for (const ch of String(b)) {
+            if (indexA >= outOfIndex) return true;
+            if (a[indexA] === ch) indexA++;
+        }
+        return indexA >= outOfIndex;
+    }
+
+    // --- 依題目查詢答案 (match main.py bot==3) ---
+    async getAnswer(questionNum) {
+        this.questions = await this.loadData('questions');
+        const q = this.questions[questionNum];
+        if (q) {
+            return q;
+        }
+        return null;
+    }
+
+    // --- 訂正錯題 (match main.py fix_question) ---
+    async loadWrongForFix() {
+        this.questions = await this.loadData('questions');
+        const wq = await this.loadData('wrongQuestions');
+        if (!wq || wq.length === 0) {
+            showOutput('沒有錯題');
+            return null;
+        }
+        // Clean like main.py: filter empty
+        const cleaned = wq.filter(x => x !== '' && x !== '\n');
+        return cleaned;
+    }
+
+    // --- 初始化資料 (match main.py initialize) ---
+    processRawData(rawText, bad) {
+        // main.py: _ignore_useless_and_get_useful_data
+        const lines = rawText.split('\n');
+        const usefulLines = lines.filter(line =>
+            line !== '' && !line.includes(bad[0]) && !line.includes(bad[1])
+        );
+
+        // main.py: _useful_data_to_right_data (split by 。\n)
+        const joined = usefulLines.join('\n').replace(/\x0c/g, '');
+        const haha = joined.split('。\n');
+
+        const rightData = [];
+        for (const rs of haha) {
+            if (rs.trim() === '') continue;
+            let yesno = true;
+            try { parseInt(rs[0]); if (isNaN(parseInt(rs[0]))) yesno = false; }
+            catch { yesno = false; }
+
+            if (!yesno && rightData.length > 0) {
+                const last = rightData.pop();
+                rightData.push(last + '。\n' + rs);
+            } else {
+                rightData.push(rs);
+            }
+        }
+
+        // main.py: _right_data_to_question
+        const questions = {};
+        let lastNumber = -1;
+        let mainQ = 0;
+
+        for (let rs of rightData) {
+            // Remove \n chars
+            rs = rs.split('').filter(c => c !== '\n').join('');
+
+            // Clean multiple spaces (match main.py logic)
+            const todo = rs;
+            let cleaned = [];
+            let bad_count = 0;
+            let may_use = false;
+            for (const ch of todo) {
+                if (ch === ' ') {
+                    bad_count++;
+                    may_use = true;
                 } else {
-                    // 其他文字檔案
-                    parsedContent = content;
+                    bad_count = 0;
                 }
-                
-                const fileName = file.name.replace('.txt', '').replace(/\d+$/, '');
-                this.saveData(fileName, parsedContent);
-                alert(`${file.name} 上傳完成`);
-            };
-            reader.readAsText(file);
+                if (bad_count >= 2) may_use = false;
+                if (bad_count === 0) {
+                    if (may_use) {
+                        cleaned.push(' ');
+                        may_use = false;
+                    }
+                    cleaned.push(ch);
+                }
+            }
+            rs = cleaned.join('');
+
+            try {
+                const parts = rs.split('. (');
+                const number = parseInt(parts[0]);
+                const rest = parts.slice(1).join('. (');
+                const answer = this.getCorrectAnswer(rest);
+                const afterAnswer = rest.substring(Array.from(answer).join('').length + 1);
+                let q1 = afterAnswer.split('①')[0];
+                if (q1[0] === ' ') q1 = q1.substring(1);
+                const q2 = '①' + rs.split('①').slice(1).join('①');
+
+                if (lastNumber === -1 || number < lastNumber) {
+                    mainQ++;
+                }
+                lastNumber = number;
+
+                questions[mainQ * 1000 + number] = [q1, q2, answer];
+            } catch (e) {
+                console.warn('解析題目失敗:', rs.substring(0, 50), e);
+            }
+        }
+        return questions;
+    }
+
+    async initializeExamData() {
+        const fileMap = this.getFileMap(this.currentExam);
+        if (!fileMap) {
+            showOutput('考試類型不存在');
+            return;
+        }
+        try {
+            const resp = await fetch(`刷題系統/data/${fileMap.data}`);
+            if (!resp.ok) throw new Error('無法讀取資料檔案');
+            const rawData = await resp.text();
+            const questions = this.processRawData(rawData, fileMap.bad);
+            this.questions = questions;
+            this.saveData('questions', questions);
+            showOutput(`初始化完成，共 ${Object.keys(questions).length} 題`);
+        } catch (e) {
+            showOutput('初始化失敗: ' + e.message);
         }
     }
 
-    // 下載檔案
-    downloadData(type) {
-        const data = this.loadData(type);
-        let content;
-        let filename;
-        
-        if (typeof data === 'object') {
-            content = JSON.stringify(data, null, 2);
-            filename = `${this.currentExam}_${type}.json`;
-        } else {
-            content = data;
-            filename = `${this.currentExam}_${type}.txt`;
-        }
-        
-        const blob = new Blob([content], {type: 'text/plain'});
+    // --- 上傳已處理資料 ---
+    uploadProcessedFile(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const content = e.target.result;
+            try {
+                let questions;
+                try {
+                    questions = JSON.parse(content);
+                } catch {
+                    questions = this.parsePythonDict(content);
+                }
+                this.questions = questions;
+                this.saveData('questions', questions);
+                showOutput(`上傳完成，共 ${Object.keys(questions).length} 題`);
+            } catch {
+                showOutput('檔案格式錯誤');
+            }
+        };
+        reader.readAsText(file);
+    }
+
+    // --- 下載資料 ---
+    async downloadFile(type) {
+        const data = await this.loadData(type);
+        const content = JSON.stringify(data, null, 2);
+        const filename = `${this.currentExam}_${type}.json`;
+        const blob = new Blob([content], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
@@ -452,121 +492,62 @@ class ExamSystem {
         a.click();
         URL.revokeObjectURL(url);
     }
-
-    // 解析 Python dict 格式
-    parsePythonDict(content) {
-        // 簡化版本，假設是簡單的 dict 格式
-        try {
-            // 移除 Python 語法，轉為 JSON
-            let jsonStr = content.replace(/'/g, '"');
-            return JSON.parse(jsonStr);
-        } catch {
-            console.error('無法解析 Python dict 格式');
-            return {};
-        }
-    }
 }
 
-// 全域變數
+// ====== 全域變數 ======
 let examSystem = new ExamSystem();
 
-// UI 函數
+// ====== 輸出訊息 ======
+function showOutput(msg) {
+    const el = document.getElementById('output');
+    el.textContent = msg;
+    el.style.display = 'block';
+}
+
+function hideAllSections() {
+    ['quiz-area', 'search-area', 'fix-area', 'answer-lookup-area'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+}
+
+// ====== UI 函數 ======
 function selectExam(examType) {
     examSystem.currentExam = examType;
     document.querySelector('.exam-selector').classList.add('hidden');
     document.getElementById('main-menu').classList.remove('hidden');
+    showOutput(`已選擇: ${examType === '1' ? '乙檢' : '丙檢'}`);
 }
 
+function backToExamSelect() {
+    examSystem = new ExamSystem();
+    hideAllSections();
+    document.getElementById('main-menu').classList.add('hidden');
+    document.querySelector('.exam-selector').classList.remove('hidden');
+}
+
+function backToMenu() {
+    hideAllSections();
+    document.getElementById('main-menu').classList.remove('hidden');
+}
+
+// --- 新開始 (main.py bot==1) ---
 function startNewQuiz() {
-    const lesson = prompt('請輸入想要的題組(1或34等) ,如果輸入all ,則全部:\n 若你想要搜尋題組範圍，請輸入 \'1001-1005\' 以表示題組1的一到五題，以此類推');
+    const lesson = prompt(
+        '請輸入想要的題組(1或34等) ,如果輸入all ,則全部:\n' +
+        "若你想要搜尋題組範圍，請輸入 '1001-1005' 以表示題組1的一到五題，以此類推"
+    );
     if (lesson) {
         examSystem.startNewQuiz(lesson);
     }
 }
 
+// --- 接續之前題目 (main.py bot==0) ---
 function continueQuiz() {
     examSystem.continueQuiz();
 }
 
-function searchQuestions() {
-    document.getElementById('main-menu').classList.add('hidden');
-    document.getElementById('search-area').classList.remove('hidden');
-}
-
-function performSearch() {
-    const keyword = document.getElementById('search-input').value;
-    const useTwoPointer = confirm('是否使用兩指標搜尋？');
-    const results = examSystem.searchQuestions(keyword, useTwoPointer);
-    document.getElementById('search-results').innerHTML = results.join('<br>');
-}
-
-function searchAnswers() {
-    const questionNum = prompt('請輸入題號:');
-    if (questionNum) {
-        const answer = examSystem.getAnswer(parseInt(questionNum));
-        alert(`答案: ${answer}`);
-    }
-}
-
-function fixWrongQuestions() {
-    examSystem.fixWrongQuestions();
-}
-
-function initializeData() {
-    let examType = examSystem.currentExam;
-    if (!examType) {
-        examType = prompt('請選擇初始化資料:\n1 = 乙檢\n2 = 丙檢');
-        if (!examType) return;
-        examType = examType.trim();
-        if (!['1', '2'].includes(examType)) {
-            alert('請輸入 1 或 2');
-            return;
-        }
-        examSystem.currentExam = examType;
-    }
-
-    examSystem.initializeExamData(examType);
-}
-
-function uploadProcessedData() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.txt,.json';
-    input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const content = event.target.result;
-                try {
-                    const questions = JSON.parse(content);
-                    examSystem.questions = questions;
-                    examSystem.saveData('questions', questions);
-                    alert('已處理資料上傳完成');
-                } catch {
-                    alert('檔案格式錯誤');
-                }
-            };
-            reader.readAsText(file);
-        }
-    };
-    input.click();
-}
-
-function uploadFiles() {
-    const files = document.getElementById('file-input').files;
-    examSystem.uploadFiles(files);
-    document.getElementById('file-upload').classList.add('hidden');
-    document.getElementById('main-menu').classList.remove('hidden');
-}
-
-function downloadData() {
-    const type = prompt('請輸入要下載的資料類型 (questions, didNotFinish, wrongQuestions):');
-    if (type) {
-        examSystem.downloadData(type);
-    }
-}
-
+// --- 提交答案 ---
 function submitAnswer() {
     examSystem.submitAnswer();
 }
@@ -574,3 +555,188 @@ function submitAnswer() {
 function stopQuiz() {
     examSystem.stopQuiz();
 }
+
+// --- 查詢題目 (main.py bot==2) ---
+function searchQuestions() {
+    hideAllSections();
+    document.getElementById('search-area').classList.remove('hidden');
+    document.getElementById('main-menu').classList.add('hidden');
+}
+
+async function performSearch() {
+    const keyword = document.getElementById('search-input').value;
+    if (!keyword) { showOutput('請輸入關鍵字'); return; }
+    const useTwoPointer = confirm('是否使用高級搜尋(two pointer)？');
+    const results = await examSystem.searchQuestions(keyword, useTwoPointer);
+    if (results.length === 0) {
+        document.getElementById('search-results').innerHTML = '<p>找不到結果</p>';
+    } else {
+        document.getElementById('search-results').innerHTML =
+            results.map(r => `<div class="search-result-item">${r}</div>`).join('');
+    }
+    showOutput(`搜尋結果: ${results.length} 筆`);
+}
+
+// --- 依題目查詢答案 (main.py bot==3) ---
+function searchAnswers() {
+    hideAllSections();
+    document.getElementById('answer-lookup-area').classList.remove('hidden');
+    document.getElementById('main-menu').classList.add('hidden');
+}
+
+async function lookupAnswer() {
+    const numStr = document.getElementById('answer-num-input').value.trim();
+    const num = parseInt(numStr);
+    if (!num || num === 0) {
+        backToMenu();
+        return;
+    }
+    const q = await examSystem.getAnswer(num);
+    const display = document.getElementById('answer-display');
+    if (q) {
+        let optionsHtml;
+        try {
+            const options = examSystem.splitOptions(q[1]);
+            optionsHtml = options.join('\n');
+        } catch {
+            optionsHtml = q[1];
+        }
+        display.innerHTML = `
+            <h3>題號: ${num}</h3>
+            <p><strong>題目:</strong> ${q[0]}</p>
+            <pre>${optionsHtml}</pre>
+            <p><strong>答案:</strong> ${Array.from(q[2]).join('')}</p>
+        `;
+    } else {
+        display.innerHTML = '<p>題目不存在</p>';
+    }
+    document.getElementById('answer-num-input').value = '';
+    document.getElementById('answer-num-input').focus();
+}
+
+// --- 訂正錯題 (main.py fix_question) ---
+let fixList = [];
+let fixIndex = 0;
+
+async function fixWrongQuestions() {
+    hideAllSections();
+    const wq = await examSystem.loadWrongForFix();
+    if (!wq) return;
+
+    fixList = [...wq];
+    fixIndex = 0;
+    document.getElementById('fix-area').classList.remove('hidden');
+    document.getElementById('main-menu').classList.add('hidden');
+    showFixQuestion();
+}
+
+function showFixQuestion() {
+    if (fixIndex >= fixList.length) {
+        // All done, save remaining
+        examSystem.saveData('wrongQuestions', []);
+        document.getElementById('fix-area').classList.add('hidden');
+        backToMenu();
+        showOutput('所有錯題已訂正完成');
+        return;
+    }
+    const pe = fixList[fixIndex];
+    const q = examSystem.questions[parseInt(pe)];
+    const display = document.getElementById('fix-question-display');
+    if (!q) {
+        display.innerHTML = `<p>題號 ${pe} 不存在</p>`;
+    } else {
+        let optionsHtml;
+        try {
+            const options = examSystem.splitOptions(q[1]);
+            optionsHtml = options.join('\n');
+        } catch {
+            optionsHtml = q[1];
+        }
+        display.innerHTML = `
+            <h3>題號 ${pe}</h3>
+            <p>${q[0]}</p>
+            <pre>${optionsHtml}</pre>
+            <p><strong>答案:</strong> ${Array.from(q[2]).join('')}</p>
+        `;
+    }
+    document.getElementById('fix-note-input').value = '';
+    document.getElementById('fix-note-input').focus();
+}
+
+function submitFix() {
+    const note = document.getElementById('fix-note-input').value;
+    if (note.toLowerCase() === 'stop') {
+        // Save remaining wrong questions
+        const remaining = fixList.slice(fixIndex);
+        examSystem.saveData('wrongQuestions', remaining);
+        document.getElementById('fix-area').classList.add('hidden');
+        backToMenu();
+        showOutput('訂正已停止');
+        return;
+    }
+
+    // Save note to localStorage
+    const pe = fixList[fixIndex];
+    const notesKey = `${examSystem.currentExam}_notes`;
+    let notes = [];
+    try { notes = JSON.parse(localStorage.getItem(notesKey) || '[]'); } catch {}
+    const q = examSystem.questions[parseInt(pe)];
+    notes.push({ questionNum: pe, question: q, note: note, time: new Date().toISOString() });
+    localStorage.setItem(notesKey, JSON.stringify(notes));
+
+    fixIndex++;
+    showFixQuestion();
+}
+
+// --- 初始化資料 (main.py initialize) ---
+function initializeData() {
+    if (!examSystem.currentExam) {
+        showOutput('請先選擇考試類型');
+        return;
+    }
+    if (confirm('確定要初始化資料嗎？這會重新處理原始資料。')) {
+        examSystem.initializeExamData();
+    }
+}
+
+// --- 上傳已處理資料 ---
+function uploadProcessedData() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.txt,.json';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) examSystem.uploadProcessedFile(file);
+    };
+    input.click();
+}
+
+// --- 下載資料 ---
+function downloadData() {
+    const type = prompt('請輸入要下載的資料類型:\n1 = questions\n2 = didNotFinish\n3 = wrongQuestions\n4 = notes');
+    const map = { '1': 'questions', '2': 'didNotFinish', '3': 'wrongQuestions', '4': 'notes' };
+    const t = map[type];
+    if (t) {
+        examSystem.downloadFile(t);
+    } else {
+        showOutput('無效的選擇');
+    }
+}
+
+// --- Enter 鍵提交 ---
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        const quizArea = document.getElementById('quiz-area');
+        const answerInput = document.getElementById('answer-input');
+        const answerNumInput = document.getElementById('answer-num-input');
+        const fixNote = document.getElementById('fix-note-input');
+
+        if (quizArea && !quizArea.classList.contains('hidden') && document.activeElement === answerInput) {
+            submitAnswer();
+        } else if (answerNumInput && document.activeElement === answerNumInput) {
+            lookupAnswer();
+        } else if (fixNote && document.activeElement === fixNote) {
+            submitFix();
+        }
+    }
+});

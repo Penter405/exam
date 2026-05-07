@@ -47,6 +47,12 @@ button:hover {
     text-align: center;
 }
 
+#main-menu hr {
+    margin: 15px 0;
+    border: none;
+    border-top: 1px solid #ddd;
+}
+
 #quiz-area {
     margin-top: 20px;
 }
@@ -59,35 +65,70 @@ button:hover {
     white-space: pre-wrap;
 }
 
-#answer-input {
+#answer-input, #search-input, #answer-num-input {
     width: 100%;
     padding: 10px;
     margin-bottom: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 16px;
+    box-sizing: border-box;
 }
 
-#search-area {
+#search-area, #answer-lookup-area, #fix-area {
     margin-top: 20px;
-}
-
-#search-input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 16px;
 }
 
 #search-results {
     margin-top: 15px;
 }
 
-#file-upload {
-    margin-top: 20px;
-    text-align: center;
+.search-result-item {
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+#answer-display {
+    margin-top: 15px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    white-space: pre-wrap;
+}
+
+#fix-question-display {
+    background-color: #f9f9f9;
+    padding: 15px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+    white-space: pre-wrap;
+}
+
+#fix-note-input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 16px;
+    box-sizing: border-box;
+    resize: vertical;
+}
+
+.option {
+    padding: 4px 0;
+}
+
+.hint {
+    color: #888;
+    font-size: 14px;
+}
+
+.remaining {
+    color: #4CAF50;
+    font-weight: bold;
 }
 
 #output {
@@ -96,4 +137,9 @@ button:hover {
     background-color: #f9f9f9;
     border-radius: 4px;
     white-space: pre-wrap;
+}
+
+#file-upload {
+    margin-top: 20px;
+    text-align: center;
 }

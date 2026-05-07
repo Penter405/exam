@@ -26,24 +26,39 @@
             <button onclick="initializeData()">初始化資料</button>
             <button onclick="uploadProcessedData()">上傳已處理資料</button>
             <button onclick="downloadData()">下載資料檔案</button>
+            <hr>
+            <button onclick="backToExamSelect()">返回選擇考試</button>
         </div>
         
         <div id="quiz-area" class="hidden">
             <div id="question-display"></div>
-            <input type="text" id="answer-input" placeholder="輸入答案">
+            <input type="text" id="answer-input" placeholder="輸入答案 (stop=停止, 0=不知道)">
             <button onclick="submitAnswer()">提交答案</button>
             <button onclick="stopQuiz()">停止</button>
         </div>
         
         <div id="search-area" class="hidden">
-            <input type="text" id="search-input" placeholder="輸入題目關鍵字">
+            <h2>查詢題目</h2>
+            <input type="text" id="search-input" placeholder="輸入題目有的字(不包含選項的字)">
             <button onclick="performSearch()">搜尋</button>
+            <button onclick="backToMenu()">返回主選單</button>
             <div id="search-results"></div>
         </div>
         
-        <div id="file-upload" class="hidden">
-            <input type="file" id="file-input" multiple>
-            <button onclick="uploadFiles()">上傳檔案</button>
+        <div id="answer-lookup-area" class="hidden">
+            <h2>依題目查詢答案</h2>
+            <input type="text" id="answer-num-input" placeholder="請輸入題號 (輸入0停止)">
+            <button onclick="lookupAnswer()">查詢</button>
+            <button onclick="backToMenu()">返回主選單</button>
+            <div id="answer-display"></div>
+        </div>
+        
+        <div id="fix-area" class="hidden">
+            <h2>訂正錯題</h2>
+            <div id="fix-question-display"></div>
+            <textarea id="fix-note-input" placeholder="請寫下訂正 (輸入stop停止)" rows="3"></textarea>
+            <button onclick="submitFix()">提交訂正</button>
+            <button onclick="submitFix()">停止訂正</button>
         </div>
         
         <div id="output"></div>
