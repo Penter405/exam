@@ -81,19 +81,17 @@ class ExamSystem {
     // --- 解析 Python dict (處理 set 格式的答案) ---
     parsePythonDict(content) {
         try {
-            // Python dict 格式: {1001: ['q1', 'q2', {'1', '2'}], ...}
-            // 1. 把 set 格式 {'1', '2'} 轉成 array ['1', '2']
             let s = content.trim();
-            // Replace Python sets {x, y} with arrays [x, y]
-            // Match { followed by quoted items separated by commas, ending with }
-            // But avoid matching the outer dict braces
+            // 1. Replace Python sets {'1', '2'} with arrays ['1', '2']
             s = s.replace(/\{(\s*'[^']*'(?:\s*,\s*'[^']*')*\s*)\}/g, '[$1]');
-            // Replace single quotes with double quotes
+            // 2. Replace single quotes with double quotes
             s = s.replace(/'/g, '"');
+            // 3. Quote integer keys: 1001: -> "1001":
+            s = s.replace(/(\{|,)\s*(\d+)\s*:/g, '$1 "$2":');
             return JSON.parse(s);
         } catch (e) {
             console.error('parsePythonDict 失敗:', e);
-            // Fallback: try line-by-line parsing
+            // Fallback: manual regex parsing
             try {
                 return this.parsePythonDictFallback(content);
             } catch {
@@ -104,15 +102,37 @@ class ExamSystem {
 
     parsePythonDictFallback(content) {
         const result = {};
-        // Match pattern: key: [value1, value2, {answers}]
-        const regex = /(\d+)\s*:\s*\[([^\]]*?),\s*'([^']*)',\s*\{([^}]*)\}\]/g;
+        // Match: 1001: ['question', 'options', {'1', '2'}]
+        const regex = /(\d+):\s*\['((?:[^'\\]|\\.)*)','\s*'((?:[^'\\]|\\.)*)','\s*\{([^}]*)\}\]/g;
         let match;
         while ((match = regex.exec(content)) !== null) {
-            const key = parseInt(match[1]);
-            const q1 = match[2].replace(/^'|'$/g, '');
+            const key = match[1];
+            const q1 = match[2];
             const q2 = match[3];
             const answers = match[4].split(',').map(a => a.trim().replace(/'/g, ''));
             result[key] = [q1, q2, answers];
+        }
+        // If regex found nothing, try simpler split approach
+        if (Object.keys(result).length === 0) {
+            // Split by pattern "number: ["
+            const parts = content.split(/(?:^\{|,\s*)(\d+):\s*\[/);
+            for (let i = 1; i < parts.length; i += 2) {
+                const key = parts[i];
+                const val = parts[i + 1];
+                if (!val) continue;
+                try {
+                    // Extract q1, q2, answer from the value part
+                    const q1Match = val.match(/^'((?:[^'\\]|\\.)*)\s*',\s*'/);
+                    const q2Match = val.match(/,\s*'(①.*)\s*',\s*\{/);
+                    const ansMatch = val.match(/\{([^}]*)\}/);
+                    if (q1Match && q2Match && ansMatch) {
+                        const q1 = q1Match[1];
+                        const q2 = q2Match[1];
+                        const answers = ansMatch[1].split(',').map(a => a.trim().replace(/'/g, ''));
+                        result[key] = [q1, q2, answers];
+                    }
+                } catch {}
+            }
         }
         return result;
     }
@@ -445,15 +465,21 @@ class ExamSystem {
             return;
         }
         try {
-            const resp = await fetch(`刷題系統/data/${fileMap.data}`);
-            if (!resp.ok) throw new Error('無法讀取資料檔案');
-            const rawData = await resp.text();
-            const questions = this.processRawData(rawData, fileMap.bad);
+            // Load pre-processed questions from imformation.txt (Python dict format)
+            // This matches main.py: rs.question=rs._load(information,"dict")
+            const resp = await fetch(`刷題系統/data/${fileMap.questions}`);
+            if (!resp.ok) throw new Error(`無法讀取 ${fileMap.questions}`);
+            const content = await resp.text();
+            const questions = this.parsePythonDict(content);
+            if (!questions || Object.keys(questions).length === 0) {
+                throw new Error('解析題目失敗，請確認檔案格式');
+            }
             this.questions = questions;
             this.saveData('questions', questions);
             showOutput(`初始化完成，共 ${Object.keys(questions).length} 題`);
         } catch (e) {
             showOutput('初始化失敗: ' + e.message);
+            console.error('初始化失敗:', e);
         }
     }
 
