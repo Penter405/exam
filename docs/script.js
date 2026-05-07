@@ -339,12 +339,50 @@ class ExamSystem {
         alert('訂正功能待實作');
     }
 
+    // 取得內建考試設定
+    getExamConfig(examType) {
+        const configs = {
+            '1': {
+                name: '乙檢',
+                raw: '刷題系統/data/data2.txt',
+                bad: ['of 64', '電腦軟體應用 乙級 工作項目']
+            },
+            '2': {
+                name: '丙檢',
+                raw: '刷題系統/data/data.txt',
+                bad: ['of 49', '電腦軟體應用 丙級 工作項目']
+            }
+        };
+        return configs[examType] || null;
+    }
+
     // 初始化資料
-    initializeData(rawData) {
+    async initializeData(rawData) {
         const questions = this.processRawData(rawData);
         this.questions = questions;
         this.saveData('questions', questions);
         alert('資料初始化完成');
+    }
+
+    async initializeExamData(examType) {
+        const config = this.getExamConfig(examType);
+        if (!config) {
+            alert('考試類型不存在，請選擇 1 或 2');
+            return;
+        }
+
+        try {
+            const response = await fetch(config.raw);
+            if (!response.ok) {
+                throw new Error(`無法讀取檔案: ${config.raw}`);
+            }
+            const rawData = await response.text();
+            await this.initializeData(rawData);
+            alert(`${config.name} 資料初始化完成`);
+        } catch (error) {
+            console.error('初始化失敗:', error);
+            alert('初始化失敗，請確認資料檔案是否存在於 刷題系統/data');
+        }
     }
 
     // 集合比較
@@ -475,21 +513,19 @@ function fixWrongQuestions() {
 }
 
 function initializeData() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.txt';
-    input.onchange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const rawData = event.target.result;
-                examSystem.initializeData(rawData);
-            };
-            reader.readAsText(file);
+    let examType = examSystem.currentExam;
+    if (!examType) {
+        examType = prompt('請選擇初始化資料:\n1 = 乙檢\n2 = 丙檢');
+        if (!examType) return;
+        examType = examType.trim();
+        if (!['1', '2'].includes(examType)) {
+            alert('請輸入 1 或 2');
+            return;
         }
-    };
-    input.click();
+        examSystem.currentExam = examType;
+    }
+
+    examSystem.initializeExamData(examType);
 }
 
 function uploadProcessedData() {
