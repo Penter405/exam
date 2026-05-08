@@ -1,14 +1,13 @@
 // ========== UI Enhancement Module ==========
-// Numpad, History, Settings, Super Clear Mode
+// Numpad, Last Question Record, Settings, Super Clear Mode
 
 // --- State ---
 let selectedNums = new Set();
-let answerHistory = [];
-let historyVisible = false;
+let lastQuestionData = null; // stores the last answered question info
+let lastQVisible = false;
 let settingsVisible = false;
-let spacingVisible = false;
-let superClearMode = false;
 let hideNumpad = false;
+let superClearMode = false;
 
 // --- Init on load ---
 window.addEventListener('DOMContentLoaded', () => {
@@ -43,54 +42,78 @@ function clearNumpad() {
     updateNumpadUI();
 }
 
-// ========== HISTORY PANEL ==========
-function toggleHistoryPanel() {
-    historyVisible = !historyVisible;
-    const panel = document.getElementById('history-panel');
-    const btn = document.getElementById('history-toggle-btn');
-    panel.classList.toggle('show', historyVisible);
-    btn.classList.toggle('active', historyVisible);
-    if (historyVisible) renderHistory();
+// ========== LAST QUESTION (Area A) ==========
+function toggleLastQuestion() {
+    lastQVisible = !lastQVisible;
+    const area = document.getElementById('last-question-area');
+    const btn = document.getElementById('square-toggle-btn');
+    if (lastQVisible) {
+        area.classList.remove('hidden');
+        btn.classList.add('active');
+    } else {
+        area.classList.add('hidden');
+        btn.classList.remove('active');
+    }
 }
 
-function addToHistory(questionNum, question, correct, correctAnswer, userAnswer) {
-    answerHistory.push({ num: questionNum, q: question, correct, ans: correctAnswer, user: userAnswer });
-    // Also save to localStorage for persistence
+function setLastQuestionData(questionNum, questionText, options, correct, correctAnswer, userAnswer) {
+    lastQuestionData = { num: questionNum, text: questionText, options, correct, ans: correctAnswer, user: userAnswer };
+    renderLastQuestion();
+    // Also save to session history in localStorage
     try {
         const key = examSystem.currentExam + '_session_history';
-        localStorage.setItem(key, JSON.stringify(answerHistory));
+        let history = [];
+        try { history = JSON.parse(localStorage.getItem(key) || '[]'); } catch(e) {}
+        history.push(lastQuestionData);
+        localStorage.setItem(key, JSON.stringify(history));
     } catch(e) {}
 }
 
-function renderHistory() {
-    const el = document.getElementById('history-content');
-    if (answerHistory.length === 0) {
-        el.innerHTML = '<p style="text-align:center;color:#999;">尚無答題紀錄</p>';
+function renderLastQuestion() {
+    const el = document.getElementById('last-question-content');
+    const area = document.getElementById('last-question-area');
+    if (!lastQuestionData) {
+        el.innerHTML = '<p style="text-align:center;color:#999;">尚無上題記錄</p>';
+        area.className = area.className.replace(/correct-result|wrong-result/g, '').trim();
         return;
     }
-    el.innerHTML = answerHistory.slice().reverse().map(h =>
-        `<div class="history-item ${h.correct ? 'correct' : 'wrong'}">
-            <span class="q-num">題 ${h.num}</span>
-            <span class="q-result">${h.correct ? '✅' : '❌'}</span>
-            <div class="q-answer">正確答案: ${h.ans} | 你的答案: ${h.user || '(空)'}</div>
-        </div>`
-    ).join('');
+    const d = lastQuestionData;
+    area.classList.remove('correct-result', 'wrong-result');
+    area.classList.add(d.correct ? 'correct-result' : 'wrong-result');
+
+    let optionsHtml = '';
+    if (d.options) {
+        optionsHtml = d.options.map(o => `<div style="padding:2px 0;">${o}</div>`).join('');
+    }
+
+    el.innerHTML = `
+        <div class="lq-title">題 ${d.num}</div>
+        <div class="lq-result">${d.correct ? '✅ correct' : '❌ wrong'}</div>
+        <div class="lq-detail">${d.text}</div>
+        ${optionsHtml ? '<div style="margin-top:6px;">' + optionsHtml + '</div>' : ''}
+        <div class="lq-detail" style="margin-top:6px;">正確答案: ${d.ans} | 你的答案: ${d.user || '(空)'}</div>
+    `;
 }
 
-// --- Touch drag for history handle ---
+// Keep addToHistory as alias for backward compat with script.js
+function addToHistory(questionNum, questionText, correct, correctAnswer, userAnswer) {
+    // Get options from current question
+    let options = null;
+    try {
+        const q = examSystem.questions[questionNum];
+        if (q) options = examSystem.splitOptions(q[1]);
+    } catch(e) {}
+    setLastQuestionData(questionNum, questionText, options, correct, correctAnswer, userAnswer);
+}
+
+// --- Touch drag for handle ---
 let handleStartY = 0;
 function onHandleTouchStart(e) { handleStartY = e.touches[0].clientY; }
 function onHandleTouchMove(e) { e.preventDefault(); }
 function onHandleTouchEnd(e) {
     const dy = handleStartY - e.changedTouches[0].clientY;
-    if (dy > 40 && !historyVisible) toggleHistoryPanel();
-    else if (dy < -40 && historyVisible) toggleHistoryPanel();
-}
-function onHistoryHandleTouchStart(e) { handleStartY = e.touches[0].clientY; }
-function onHistoryHandleTouchMove(e) { e.preventDefault(); }
-function onHistoryHandleTouchEnd(e) {
-    const dy = handleStartY - e.changedTouches[0].clientY;
-    if (dy < -40 && historyVisible) toggleHistoryPanel();
+    if (dy > 40 && !lastQVisible) toggleLastQuestion();
+    else if (dy < -40 && lastQVisible) toggleLastQuestion();
 }
 
 // ========== SETTINGS ==========
@@ -103,14 +126,12 @@ function toggleSettings() {
 function openSpacingSlider() {
     settingsVisible = false;
     document.getElementById('settings-popup').classList.remove('show');
-    spacingVisible = true;
     document.getElementById('spacing-overlay').classList.add('show');
     const saved = localStorage.getItem('spacing_multiplier');
     if (saved) document.getElementById('spacing-slider').value = saved;
 }
 
 function closeSpacingSlider() {
-    spacingVisible = false;
     document.getElementById('spacing-overlay').classList.remove('show');
 }
 
@@ -176,8 +197,7 @@ function showDataManagement() {
     let totalSize = 0;
     keys.forEach(k => totalSize += (localStorage.getItem(k) || '').length);
     const sizeKB = (totalSize / 1024).toFixed(1);
-    const msg = `已緩存 ${keys.length} 項資料 (約 ${sizeKB} KB)\n\n要清除所有緩存嗎？`;
-    if (confirm(msg)) {
+    if (confirm(`已緩存 ${keys.length} 項資料 (約 ${sizeKB} KB)\n\n要清除所有緩存嗎？`)) {
         keys.forEach(k => localStorage.removeItem(k));
         alert('緩存已清除');
         updateCacheIndicator();

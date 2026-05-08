@@ -195,92 +195,119 @@ button:hover {
     align-items: center;
 }
 
-/* --- Fixed Buttons (Square + Settings) --- */
-.fixed-btn {
-    position: fixed;
-    z-index: 1000;
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
+/* --- Area B: Inline Settings Button --- */
+.area-b {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.settings-inline-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 15px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    transition: transform 0.15s;
+}
+
+.settings-inline-btn:active { transform: scale(0.95); }
+
+/* --- Square Toggle Button (top-right of quiz area) --- */
+#quiz-area { position: relative; }
+
+.square-toggle-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 20px;
+    padding: 0;
+    margin: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
-    padding: 0;
-    margin: 0;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    transition: transform 0.15s;
-    border: none;
     cursor: pointer;
-    background-color: #4CAF50;
-    color: white;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: transform 0.15s;
+    z-index: 10;
 }
 
-.fixed-btn:active { transform: scale(0.9); }
-
-#history-toggle-btn { bottom: 20px; right: 20px; }
-#history-toggle-btn.active {
+.square-toggle-btn:active { transform: scale(0.9); }
+.square-toggle-btn.active {
     background-color: #2E7D32;
-    box-shadow: 0 0 0 3px #4CAF50, 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 0 0 3px #4CAF50, 0 2px 6px rgba(0,0,0,0.3);
 }
 
-#settings-btn { bottom: 20px; left: 20px; }
-
-/* --- History Panel --- */
-#history-panel {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    background-color: rgba(255,255,255,0.97);
-    border-top-left-radius: 16px;
-    border-top-right-radius: 16px;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.15);
-    z-index: 900;
-    transform: translateY(100%);
-    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
-    max-height: 70vh;
+/* --- Draggable Line Handle (上題記錄) --- */
+.last-q-handle {
+    width: 100%;
+    padding: 10px 0 4px 0;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
 }
-#history-panel.show { transform: translateY(0); }
 
-.history-handle {
-    width: 100%; padding: 12px 0 8px 0;
-    display: flex; justify-content: center;
-    cursor: grab; flex-shrink: 0;
+.last-q-handle-bar {
+    width: 50px;
+    height: 5px;
+    background-color: #ccc;
+    border-radius: 3px;
+    transition: background-color 0.15s;
 }
-.history-handle-bar {
-    width: 40px; height: 5px;
-    background-color: #ccc; border-radius: 3px;
-}
-.history-handle:active .history-handle-bar { background-color: #999; }
 
-.history-title {
-    text-align: center; font-size: 15px; font-weight: bold;
-    color: #555; padding: 0 16px 8px 16px; flex-shrink: 0;
+.last-q-handle:active .last-q-handle-bar { background-color: #999; }
+
+.last-q-handle-label {
+    font-size: 11px;
+    color: #aaa;
+    margin-top: 4px;
 }
-.history-content {
-    overflow-y: auto; padding: 0 16px 80px 16px; flex: 1;
+
+/* --- Area A: Last Question Result (inline) --- */
+#last-question-area {
+    margin-top: 8px;
+    padding: 12px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+    border-left: 4px solid #ccc;
+    white-space: pre-wrap;
+    font-size: 14px;
 }
-.history-item {
-    padding: 10px; border-bottom: 1px solid #eee; font-size: 14px;
+
+#last-question-area.correct-result { border-left-color: #4CAF50; }
+#last-question-area.wrong-result { border-left-color: #f44336; }
+
+#last-question-content .lq-title {
+    font-weight: bold; color: #333; margin-bottom: 6px;
 }
-.history-item .q-num { font-weight: bold; color: #333; }
-.history-item .q-result { margin-left: 8px; }
-.history-item .q-answer { color: #666; font-size: 13px; margin-top: 4px; }
-.history-item.correct { border-left: 3px solid #4CAF50; padding-left: 8px; }
-.history-item.wrong { border-left: 3px solid #f44336; padding-left: 8px; }
+#last-question-content .lq-result {
+    font-size: 15px; margin-bottom: 4px;
+}
+#last-question-content .lq-detail {
+    color: #666; font-size: 13px;
+}
 
 /* --- Settings Popup --- */
 #settings-popup {
-    position: fixed; bottom: 80px; left: 20px;
+    position: fixed; bottom: 50%; left: 50%;
+    transform: translate(-50%, 50%) scale(0.8);
     width: 260px; background-color: white;
     border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2);
     z-index: 1100; padding: 16px;
-    transform: scale(0.8); opacity: 0; pointer-events: none;
+    opacity: 0; pointer-events: none;
     transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
-    transform-origin: bottom left;
 }
-#settings-popup.show { transform: scale(1); opacity: 1; pointer-events: all; }
+#settings-popup.show { transform: translate(-50%, 50%) scale(1); opacity: 1; pointer-events: all; }
 
 .settings-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 12px; text-align: center; }
 .settings-item {

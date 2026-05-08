@@ -32,6 +32,9 @@
         </div>
         
         <div id="quiz-area" class="hidden">
+            <!-- Square button top-right for toggling last question -->
+            <button type="button" class="square-toggle-btn" id="square-toggle-btn" onclick="toggleLastQuestion()">□</button>
+
             <div id="question-display"></div>
             
             <!-- Answer input (readonly, no virtual keyboard) -->
@@ -52,9 +55,22 @@
                 <button onclick="stopQuiz()">停止</button>
             </div>
 
-            <!-- Draggable line to reveal history (in quiz) -->
-            <div class="history-handle" id="quiz-history-handle" ontouchstart="onHandleTouchStart(event)" ontouchmove="onHandleTouchMove(event)" ontouchend="onHandleTouchEnd(event)" onclick="toggleHistoryPanel()">
-                <div class="history-handle-bar"></div>
+            <!-- Draggable line (上題記錄) - pull up to reveal area A -->
+            <div class="last-q-handle" id="last-q-handle" ontouchstart="onHandleTouchStart(event)" ontouchmove="onHandleTouchMove(event)" ontouchend="onHandleTouchEnd(event)" onclick="toggleLastQuestion()">
+                <div class="last-q-handle-bar"></div>
+                <div class="last-q-handle-label">上題記錄</div>
+            </div>
+
+            <!-- Area A: last answered question result (hidden by default) -->
+            <div id="last-question-area" class="hidden">
+                <div id="last-question-content">
+                    <p style="text-align:center;color:#999;">尚無上題記錄</p>
+                </div>
+            </div>
+
+            <!-- Area B: settings button -->
+            <div class="area-b">
+                <button type="button" class="settings-inline-btn" id="settings-btn" onclick="toggleSettings()">⚙️ 設定</button>
             </div>
         </div>
         
@@ -85,13 +101,6 @@
         <div id="output"></div>
     </div>
 
-    <!-- ===== FIXED BUTTONS ===== -->
-    
-    <!-- Settings button (bottom-left, green) -->
-    <button class="fixed-btn" id="settings-btn" onclick="toggleSettings()">⚙️</button>
-    
-    <!-- History toggle square button (bottom-right, green) -->
-    <button class="fixed-btn" id="history-toggle-btn" onclick="toggleHistoryPanel()">📋</button>
 
     <!-- ===== SETTINGS POPUP ===== -->
     <div id="settings-popup">
@@ -127,16 +136,7 @@
         <button class="spacing-close-btn" onclick="closeSpacingSlider()">完成</button>
     </div>
 
-    <!-- ===== HISTORY PANEL ===== -->
-    <div id="history-panel">
-        <div class="history-handle" ontouchstart="onHistoryHandleTouchStart(event)" ontouchmove="onHistoryHandleTouchMove(event)" ontouchend="onHistoryHandleTouchEnd(event)">
-            <div class="history-handle-bar"></div>
-        </div>
-        <div class="history-title">📝 答題紀錄</div>
-        <div class="history-content" id="history-content">
-            <p style="text-align:center;color:#999;">尚無答題紀錄</p>
-        </div>
-    </div>
+
 
     <script src="docs/script.js"></script>
     <script src="docs/ui.js"></script>
