@@ -80,59 +80,63 @@
             <button onclick="submitFix()">停止訂正</button>
         </div>
         
-        <!-- 白色容器底部 (output area) — 拖拉線 + 答題記錄 都在這裡 -->
+        <!-- 上題記錄: 在 output 上方，向上展開 -->
+        <div id="collapsible-area" class="hidden">
+            <div id="last-question-content">
+                <p style="text-align:center;color:#999;">尚無上題記錄</p>
+            </div>
+        </div>
+
+        <!-- output block -->
         <div id="output">
-            <div id="output-text"></div>
-            <!-- 拖拉線: middle top -->
+            <!-- 拖拉線: output block 的最頂部 -->
             <div class="last-q-handle" id="last-q-handle" ontouchstart="onHandleTouchStart(event)" ontouchmove="onHandleTouchMove(event)" ontouchend="onHandleTouchEnd(event)" onclick="toggleLastQuestion()">
                 <div class="last-q-handle-bar"></div>
                 <div class="last-q-handle-label">上題記錄</div>
             </div>
-
-            <!-- 可展開區域: 上題結果 -->
-            <div id="collapsible-area" class="hidden">
-                <div id="last-question-content">
-                    <p style="text-align:center;color:#999;">尚無上題記錄</p>
-                </div>
-            </div>
-
+            <div id="output-text"></div>
             <!-- 答題記錄按鈕: 右下角 -->
             <button type="button" class="bottom-right-btn" id="history-toggle-btn" onclick="toggleLastQuestion()">📋</button>
         </div>
-    </div>
 
-    <!-- ===== SETTINGS POPUP ===== -->
-    <div id="settings-popup">
-        <div class="settings-title">⚙️ 設定</div>
-        
-        <div class="settings-item" onclick="openSpacingSlider()">
-            <span class="settings-item-label">調整間距</span>
-            <span class="settings-item-action">▶</span>
+        <!-- Settings popup: 白色容器右上角，在 settings 按鈕下方 -->
+        <div id="settings-popup">
+            <div class="settings-title">⚙️ 設定</div>
+            
+            <div class="settings-item" onclick="openSpacingSlider()">
+                <span class="settings-item-label">調整間距</span>
+                <span class="settings-item-action">▶</span>
+            </div>
+            
+            <div class="settings-item" onclick="toggleHideNumpad()">
+                <span class="settings-item-label">隱藏 01234 按鈕</span>
+                <div class="toggle-switch" id="toggle-hide-numpad"></div>
+            </div>
+            
+            <div class="settings-item" onclick="toggleSuperClear()">
+                <span class="settings-item-label">極簡模式</span>
+                <div class="toggle-switch" id="toggle-super-clear"></div>
+            </div>
+            
+            <div class="settings-item" onclick="showDataManagement()">
+                <span class="settings-item-label">資料管理</span>
+                <span class="settings-item-action">▶</span>
+            </div>
+            
+            <div class="data-info" id="data-info"></div>
         </div>
-        
-        <div class="settings-item" onclick="toggleHideNumpad()">
-            <span class="settings-item-label">隱藏 01234 按鈕</span>
-            <div class="toggle-switch" id="toggle-hide-numpad"></div>
-        </div>
-        
-        <div class="settings-item" onclick="toggleSuperClear()">
-            <span class="settings-item-label">極簡模式</span>
-            <div class="toggle-switch" id="toggle-super-clear"></div>
-        </div>
-        
-        <div class="settings-item" onclick="showDataManagement()">
-            <span class="settings-item-label">資料管理</span>
-            <span class="settings-item-action">▶</span>
-        </div>
-        
-        <div class="data-info" id="data-info"></div>
     </div>
 
     <!-- ===== SPACING SLIDER OVERLAY ===== -->
     <div id="spacing-overlay">
-        <div class="spacing-label">調整間距 (縮小間距，文字大小不變)</div>
-        <input type="range" id="spacing-slider" min="0.3" max="1.5" step="0.05" value="1">
-        <button class="spacing-close-btn" onclick="closeSpacingSlider()">完成</button>
+        <div class="spacing-label">調整上下間距</div>
+        <div class="spacing-value-display" id="spacing-value-display">間距: 標準</div>
+        <input type="range" id="spacing-slider" min="-5" max="5" step="1" value="0">
+        <div class="spacing-hint">← 縮小　　　放開自動歸位　　　放大 →</div>
+        <div style="display:flex; gap:8px; justify-content:center; margin-top:12px;">
+            <button class="spacing-reset-btn" onclick="resetSpacing()">重設間距</button>
+            <button class="spacing-close-btn" onclick="closeSpacingSlider()">完成</button>
+        </div>
     </div>
 
     <script src="docs/script.js"></script>

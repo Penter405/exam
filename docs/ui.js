@@ -135,25 +135,77 @@ function closeSpacingSlider() {
     document.getElementById('spacing-overlay').classList.remove('show');
 }
 
-// Spacing slider live update
-function applySpacing(v) {
-    const container = document.getElementById('app-container');
-    if (container) container.style.padding = (20 * v) + 'px';
-    document.body.style.padding = (20 * v) + 'px';
+// Spacing: stored as px value for vertical margins/padding
+const SPACING_DEFAULT = 16; // px
+const SPACING_STEP = 2;     // px per slider unit
+let currentSpacing = SPACING_DEFAULT;
+
+function applySpacing(px) {
+    currentSpacing = Math.max(4, Math.min(40, px));
+    const s = currentSpacing + 'px';
     document.querySelectorAll('#question-display, #answer-display, #fix-question-display').forEach(el => {
-        el.style.padding = (15 * v) + 'px';
-        el.style.marginBottom = (15 * v) + 'px';
+        el.style.paddingTop = s;
+        el.style.paddingBottom = s;
+        el.style.marginBottom = s;
     });
+    document.querySelectorAll('.numpad-row, .action-row').forEach(el => {
+        el.style.marginBottom = s;
+    });
+    localStorage.setItem('spacing_px', String(currentSpacing));
+    updateSpacingLabel();
 }
+
+function updateSpacingLabel() {
+    const el = document.getElementById('spacing-value-display');
+    if (!el) return;
+    const diff = currentSpacing - SPACING_DEFAULT;
+    if (diff === 0) el.textContent = '間距: 標準';
+    else if (diff > 0) el.textContent = `間距: +${diff}px (較大)`;
+    else el.textContent = `間距: ${diff}px (較小)`;
+}
+
+function resetSpacing() {
+    applySpacing(SPACING_DEFAULT);
+    const slider = document.getElementById('spacing-slider');
+    if (slider) slider.value = 0;
+    updateSpacingLabel();
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('spacing-slider');
-    if (slider) {
-        slider.addEventListener('input', e => {
-            const v = e.target.value;
-            applySpacing(v);
-            localStorage.setItem('spacing_multiplier', v);
+    if (!slider) return;
+
+    // Live drag: preview spacing change relative to current
+    slider.addEventListener('input', e => {
+        const delta = parseInt(e.target.value) * SPACING_STEP;
+        const preview = currentSpacing + delta;
+        // Apply preview (don't save yet)
+        const s = Math.max(4, Math.min(40, preview)) + 'px';
+        document.querySelectorAll('#question-display, #answer-display, #fix-question-display').forEach(el => {
+            el.style.paddingTop = s;
+            el.style.paddingBottom = s;
+            el.style.marginBottom = s;
         });
-    }
+        document.querySelectorAll('.numpad-row, .action-row').forEach(el => {
+            el.style.marginBottom = s;
+        });
+        // Show live value
+        const el = document.getElementById('spacing-value-display');
+        if (el) {
+            const diff = Math.max(4, Math.min(40, preview)) - SPACING_DEFAULT;
+            if (diff === 0) el.textContent = '間距: 標準';
+            else if (diff > 0) el.textContent = `間距: +${diff}px (較大)`;
+            else el.textContent = `間距: ${diff}px (較小)`;
+        }
+    });
+
+    // On release: commit change, snap back to 0
+    slider.addEventListener('change', e => {
+        const delta = parseInt(e.target.value) * SPACING_STEP;
+        applySpacing(currentSpacing + delta);
+        // Snap back to center
+        setTimeout(() => { slider.value = 0; }, 80);
+    });
 });
 
 function toggleHideNumpad() {
@@ -231,8 +283,8 @@ function updateCacheIndicator() {
 
 // ========== RESTORE SETTINGS ==========
 function restoreSettings() {
-    const sp = localStorage.getItem('spacing_multiplier');
-    if (sp) applySpacing(sp);
+    const sp = localStorage.getItem('spacing_px');
+    if (sp) applySpacing(parseInt(sp));
 
     hideNumpad = localStorage.getItem('hide_numpad') === '1';
     if (hideNumpad) {
