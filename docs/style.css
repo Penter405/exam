@@ -198,7 +198,7 @@ button:hover {
 /* --- Area B: Inline Settings Button --- */
 .area-b {
     margin-top: 12px;
-    text-align: center;
+    text-align: right;
 }
 
 .settings-inline-btn {

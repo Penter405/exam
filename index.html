@@ -55,22 +55,26 @@
                 <button onclick="stopQuiz()">停止</button>
             </div>
 
-            <!-- Draggable line (上題記錄) - pull up to reveal area A -->
+            <!-- Draggable line (上題記錄) - pull up to reveal area A+B -->
             <div class="last-q-handle" id="last-q-handle" ontouchstart="onHandleTouchStart(event)" ontouchmove="onHandleTouchMove(event)" ontouchend="onHandleTouchEnd(event)" onclick="toggleLastQuestion()">
                 <div class="last-q-handle-bar"></div>
                 <div class="last-q-handle-label">上題記錄</div>
             </div>
 
-            <!-- Area A: last answered question result (hidden by default) -->
-            <div id="last-question-area" class="hidden">
-                <div id="last-question-content">
-                    <p style="text-align:center;color:#999;">尚無上題記錄</p>
+            <!-- Collapsible section (hidden by default) -->
+            <div id="collapsible-area" class="hidden">
+                <!-- Area A: last answered question result -->
+                <div id="last-question-area">
+                    <div id="last-question-content">
+                        <p style="text-align:center;color:#999;">尚無上題記錄</p>
+                    </div>
                 </div>
             </div>
 
-            <!-- Area B: settings button -->
+            <!-- Area B: settings button (always visible, top-right) -->
             <div class="area-b">
                 <button type="button" class="settings-inline-btn" id="settings-btn" onclick="toggleSettings()">⚙️ 設定</button>
+            </div>
             </div>
         </div>
         

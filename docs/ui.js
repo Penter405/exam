@@ -45,7 +45,7 @@ function clearNumpad() {
 // ========== LAST QUESTION (Area A) ==========
 function toggleLastQuestion() {
     lastQVisible = !lastQVisible;
-    const area = document.getElementById('last-question-area');
+    const area = document.getElementById('collapsible-area');
     const btn = document.getElementById('square-toggle-btn');
     if (lastQVisible) {
         area.classList.remove('hidden');
