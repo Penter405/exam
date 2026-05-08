@@ -269,8 +269,10 @@ class ExamSystem {
         // Clear numpad and rebind super clear
         if (typeof clearNumpad === 'function') clearNumpad();
         if (typeof bindSuperClearOptions === 'function') bindSuperClearOptions();
-        // Reapply spacing — innerHTML wipes inline styles on child elements
-        if (typeof globalSpacing !== 'undefined') globalSpacing.restore();
+        // Reapply spacing after next frame — innerHTML reflow can wipe inline styles
+        setTimeout(() => {
+            if (typeof globalSpacing !== 'undefined') globalSpacing.restore();
+        }, 0);
     }
 
     // --- 提交答案 (match main.py answer checking) ---
@@ -725,6 +727,14 @@ function submitFix() {
 
     fixIndex++;
     showFixQuestion();
+}
+
+function stopFix() {
+    const remaining = fixList.slice(fixIndex);
+    examSystem.saveData('wrongQuestions', remaining);
+    document.getElementById('fix-area').classList.add('hidden');
+    backToMenu();
+    showOutput('訂正已停止');
 }
 
 // --- 初始化資料 (main.py initialize) ---
