@@ -258,13 +258,19 @@ class ExamSystem {
             <p class="remaining">剩餘 ${this.currentQuestionPool.length} 題</p>
         `;
 
+        // Preserve scroll position — innerHTML reflow can cause page jump
+        const scrollY = window.scrollY;
         document.getElementById('question-display').innerHTML = html;
+        window.scrollTo({ top: scrollY, behavior: 'instant' });
+
         document.getElementById('quiz-area').classList.remove('hidden');
         document.getElementById('main-menu').classList.add('hidden');
         document.getElementById('answer-input').value = '';
         // Clear numpad and rebind super clear
         if (typeof clearNumpad === 'function') clearNumpad();
         if (typeof bindSuperClearOptions === 'function') bindSuperClearOptions();
+        // Reapply spacing — innerHTML wipes inline styles on child elements
+        if (typeof globalSpacing !== 'undefined') globalSpacing.restore();
     }
 
     // --- 提交答案 (match main.py answer checking) ---
