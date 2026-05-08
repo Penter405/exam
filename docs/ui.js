@@ -162,9 +162,12 @@ function updateSpacingLabel() {
     const el = document.getElementById('spacing-value-display');
     if (!el) return;
     const diff = currentSpacing - SPACING_DEFAULT;
-    if (diff === 0) el.textContent = '間距: 標準';
-    else if (diff > 0) el.textContent = `間距: +${diff}px (較大)`;
-    else el.textContent = `間距: ${diff}px (較小)`;
+    let txt = '';
+    if (diff === 0) txt = '間距: 標準';
+    else if (diff > 0) txt = `間距: +${diff}px (較大)`;
+    else txt = `間距: ${diff}px (較小)`;
+    if (spacingDebt < 0) txt += `　｜　回彈緩衝: ${spacingDebt}`;
+    el.textContent = txt;
 }
 
 function resetSpacing() {
@@ -177,30 +180,35 @@ function resetSpacing() {
 
 // Apply one unit of spacing change using the debt system
 function applySpacingUnit(direction) {
-    // direction: +1 = increase, -1 = decrease
     if (direction < 0) {
         if (currentSpacing <= SPACING_MIN) {
-            // Already at wall — accumulate debt
             spacingDebt -= 1;
         } else {
             applySpacing(currentSpacing - SPACING_STEP);
         }
     } else {
         if (spacingDebt < 0) {
-            // Burn off debt first
             spacingDebt += 1;
-            updateSpacingLabel(); // label stays same, debt shrinking
+            updateSpacingLabel();
         } else {
             applySpacing(currentSpacing + SPACING_STEP);
         }
     }
 }
 
+function commitSliderValue(sliderVal) {
+    const units = parseInt(sliderVal);
+    if (units === 0) return;
+    const dir = units > 0 ? 1 : -1;
+    const count = Math.abs(units);
+    for (let i = 0; i < count; i++) applySpacingUnit(dir);
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('spacing-slider');
     if (!slider) return;
 
-    // Live drag: preview spacing change relative to current (ignoring debt for preview)
+    // Live drag: preview (visual only, no debt)
     slider.addEventListener('input', e => {
         const delta = parseInt(e.target.value) * SPACING_STEP;
         const preview = Math.max(SPACING_MIN, Math.min(SPACING_MAX, currentSpacing + delta));
@@ -216,21 +224,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const el = document.getElementById('spacing-value-display');
         if (el) {
             const diff = preview - SPACING_DEFAULT;
-            if (diff === 0) el.textContent = '間距: 標準';
-            else if (diff > 0) el.textContent = `間距: +${diff}px (較大)`;
-            else el.textContent = `間距: ${diff}px (較小)`;
+            let txt = diff === 0 ? '間距: 標準' : diff > 0 ? `間距: +${diff}px (較大)` : `間距: ${diff}px (較小)`;
+            if (spacingDebt < 0) txt += `　｜　回彈緩衝: ${spacingDebt}`;
+            el.textContent = txt;
         }
     });
 
-    // On release: apply each unit with debt system, then snap back
+    // Commit on mouse release
     slider.addEventListener('change', e => {
-        const units = parseInt(e.target.value); // -5 to +5
-        const dir = units > 0 ? 1 : units < 0 ? -1 : 0;
-        const count = Math.abs(units);
-        for (let i = 0; i < count; i++) {
-            applySpacingUnit(dir);
-        }
-        // Snap back to center
+        commitSliderValue(e.target.value);
+        setTimeout(() => { slider.value = 0; }, 80);
+    });
+
+    // Commit on touch release (mobile)
+    slider.addEventListener('touchend', () => {
+        commitSliderValue(slider.value);
         setTimeout(() => { slider.value = 0; }, 80);
     });
 });
