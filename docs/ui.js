@@ -200,49 +200,51 @@ class SpacingController {
     }
 }
 
-// Global spacing: vertical padding/margin on main elements
+// Global spacing: adjusts outer element spacing AND question area internal spacing
 const globalSpacing = new SpacingController({
     key: 'global', defaultPx: 16, minPx: 4, maxPx: 40, step: 2, label: '間距',
     apply(px) {
         const s = px + 'px';
+        const half = Math.round(px * 0.5) + 'px';
+        const quarter = Math.round(px * 0.25) + 'px';
+
+        // Outer element spacing
         document.querySelectorAll('#question-display, #answer-display, #fix-question-display').forEach(el => {
-            el.style.paddingTop = s; el.style.paddingBottom = s; el.style.marginBottom = s;
+            el.style.paddingTop = half;
+            el.style.paddingBottom = half;
+            el.style.marginBottom = half;
         });
         document.querySelectorAll('.numpad-row, .action-row').forEach(el => {
-            el.style.marginBottom = s;
+            el.style.marginBottom = quarter;
         });
-    }
-});
 
-// Question content spacing: line-height and option padding inside question display
-const questionSpacing = new SpacingController({
-    key: 'question', defaultPx: 12, minPx: 4, maxPx: 48, step: 2, label: '題目間距',
-    apply(px) {
-        const lh = (px / 16).toFixed(2); // convert px to unitless line-height
-        document.querySelectorAll('#question-display p, #question-display h3').forEach(el => {
-            el.style.lineHeight = lh;
-            el.style.marginBottom = (px * 0.4) + 'px';
+        // Question area INTERNAL spacing (padding/gap, not line-height)
+        document.querySelectorAll('#question-display h3').forEach(el => {
+            el.style.marginBottom = quarter;
+        });
+        document.querySelectorAll('#question-display p').forEach(el => {
+            el.style.marginTop = quarter;
+            el.style.marginBottom = quarter;
         });
         document.querySelectorAll('#question-display .option').forEach(el => {
-            el.style.padding = (px * 0.25) + 'px 0';
+            el.style.padding = quarter + ' 0';
         });
         document.querySelectorAll('#question-display .remaining').forEach(el => {
-            el.style.marginTop = (px * 0.5) + 'px';
+            el.style.marginTop = half;
         });
     }
 });
 
-// Active spacing controller (set when overlay opens)
+// Active spacing controller
 let activeSpacing = globalSpacing;
 
 function openSpacingSlider(type) {
-    activeSpacing = type === 'question' ? questionSpacing : globalSpacing;
+    activeSpacing = globalSpacing;
     settingsVisible = false;
     document.getElementById('settings-popup').classList.remove('show');
-    const overlay = document.getElementById('spacing-overlay');
     document.getElementById('spacing-slider').value = 0;
     activeSpacing.updateLabel();
-    overlay.classList.add('show');
+    document.getElementById('spacing-overlay').classList.add('show');
 }
 
 function closeSpacingSlider() {
@@ -258,7 +260,6 @@ function resetSpacing() {
 document.addEventListener('DOMContentLoaded', () => {
     // Restore saved values
     globalSpacing.restore();
-    questionSpacing.restore();
 
     const slider = document.getElementById('spacing-slider');
     if (!slider) return;
@@ -276,15 +277,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Commit on mouse release
-    slider.addEventListener('change', e => {
-        activeSpacing.commit(parseInt(e.target.value));
-        setTimeout(() => { slider.value = 0; }, 80);
+    let touchCommitted = false;
+
+    // Commit on touch release (mobile) — fires before 'change'
+    slider.addEventListener('touchend', () => {
+        touchCommitted = true;
+        activeSpacing.commit(parseInt(slider.value));
+        setTimeout(() => {
+            slider.value = 0;
+            touchCommitted = false;
+        }, 100);
     });
 
-    // Commit on touch release (mobile)
-    slider.addEventListener('touchend', () => {
-        activeSpacing.commit(parseInt(slider.value));
+    // Commit on mouse release (desktop only — skip if already committed by touch)
+    slider.addEventListener('change', e => {
+        if (touchCommitted) return;
+        activeSpacing.commit(parseInt(e.target.value));
         setTimeout(() => { slider.value = 0; }, 80);
     });
 });
