@@ -133,12 +133,16 @@ button:hover {
 
 #output {
     margin-top: 20px;
-    padding: 10px;
+    padding: 10px 10px 50px 10px;
     background-color: #f9f9f9;
     border-radius: 4px;
-    white-space: pre-wrap;
     position: relative;
-    min-height: 40px;
+    min-height: 60px;
+}
+
+#output-text {
+    white-space: pre-wrap;
+    min-height: 1em;
 }
 
 #file-upload {
@@ -253,12 +257,13 @@ button:hover {
 /* --- Collapsible Last Question Result --- */
 #collapsible-area {
     padding: 12px;
-    background-color: #f9f9f9;
+    background-color: #fff;
     border-radius: 6px;
     border-left: 4px solid #ccc;
+    border: 1px solid #ddd;
+    border-left-width: 4px;
     margin-top: 8px;
     margin-bottom: 8px;
-    white-space: pre-wrap;
     font-size: 14px;
 }
 
@@ -275,17 +280,17 @@ button:hover {
     color: #666; font-size: 13px;
 }
 
-/* --- 答題記錄 Button: 白色容器底部 右下角 --- */
+/* --- 答題記錄 Button: output 右下角 --- */
 .bottom-right-btn {
     position: absolute;
-    bottom: 0;
-    right: 0;
-    width: 40px;
-    height: 40px;
+    bottom: 6px;
+    right: 6px;
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
     background-color: #4CAF50;
     color: white;
-    font-size: 18px;
+    font-size: 16px;
     padding: 0;
     margin: 0;
     display: flex;
@@ -294,6 +299,7 @@ button:hover {
     cursor: pointer;
     border: none;
     box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 2;
 }
 
 .bottom-right-btn:active { transform: scale(0.9); }
@@ -304,15 +310,17 @@ button:hover {
 
 /* --- Settings Popup --- */
 #settings-popup {
-    position: fixed; bottom: 50%; left: 50%;
-    transform: translate(-50%, 50%) scale(0.8);
-    width: 260px; background-color: white;
+    position: absolute;
+    top: 60px;
+    right: 12px;
+    width: 240px; background-color: white;
     border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.2);
     z-index: 1100; padding: 16px;
-    opacity: 0; pointer-events: none;
+    transform: scale(0.8); opacity: 0; pointer-events: none;
+    transform-origin: top right;
     transition: transform 0.2s cubic-bezier(0.4,0,0.2,1), opacity 0.2s;
 }
-#settings-popup.show { transform: translate(-50%, 50%) scale(1); opacity: 1; pointer-events: all; }
+#settings-popup.show { transform: scale(1); opacity: 1; pointer-events: all; }
 
 .settings-title { font-size: 16px; font-weight: bold; color: #333; margin-bottom: 12px; text-align: center; }
 .settings-item {

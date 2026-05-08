@@ -140,7 +140,7 @@ function applySpacing(v) {
     const container = document.getElementById('app-container');
     if (container) container.style.padding = (20 * v) + 'px';
     document.body.style.padding = (20 * v) + 'px';
-    document.querySelectorAll('#question-display, #answer-display, #fix-question-display, #output').forEach(el => {
+    document.querySelectorAll('#question-display, #answer-display, #fix-question-display').forEach(el => {
         el.style.padding = (15 * v) + 'px';
         el.style.marginBottom = (15 * v) + 'px';
     });
