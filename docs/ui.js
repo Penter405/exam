@@ -115,12 +115,21 @@ function closeSpacingSlider() {
 }
 
 // Spacing slider live update
+function applySpacing(v) {
+    const container = document.getElementById('app-container');
+    if (container) container.style.padding = (20 * v) + 'px';
+    document.body.style.padding = (20 * v) + 'px';
+    document.querySelectorAll('#question-display, #answer-display, #fix-question-display, #output').forEach(el => {
+        el.style.padding = (15 * v) + 'px';
+        el.style.marginBottom = (15 * v) + 'px';
+    });
+}
 document.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('spacing-slider');
     if (slider) {
         slider.addEventListener('input', e => {
             const v = e.target.value;
-            document.documentElement.style.setProperty('--spacing-multiplier', v);
+            applySpacing(v);
             localStorage.setItem('spacing_multiplier', v);
         });
     }
@@ -203,7 +212,7 @@ function updateCacheIndicator() {
 // ========== RESTORE SETTINGS ==========
 function restoreSettings() {
     const sp = localStorage.getItem('spacing_multiplier');
-    if (sp) document.documentElement.style.setProperty('--spacing-multiplier', sp);
+    if (sp) applySpacing(sp);
 
     hideNumpad = localStorage.getItem('hide_numpad') === '1';
     if (hideNumpad) {
