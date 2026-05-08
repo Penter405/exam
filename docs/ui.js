@@ -46,13 +46,13 @@ function clearNumpad() {
 function toggleLastQuestion() {
     lastQVisible = !lastQVisible;
     const area = document.getElementById('collapsible-area');
-    const btn = document.getElementById('square-toggle-btn');
+    const btn = document.getElementById('history-toggle-btn');
     if (lastQVisible) {
         area.classList.remove('hidden');
-        btn.classList.add('active');
+        if (btn) btn.classList.add('active');
     } else {
         area.classList.add('hidden');
-        btn.classList.remove('active');
+        if (btn) btn.classList.remove('active');
     }
 }
 
@@ -71,10 +71,10 @@ function setLastQuestionData(questionNum, questionText, options, correct, correc
 
 function renderLastQuestion() {
     const el = document.getElementById('last-question-content');
-    const area = document.getElementById('last-question-area');
+    const area = document.getElementById('collapsible-area');
     if (!lastQuestionData) {
         el.innerHTML = '<p style="text-align:center;color:#999;">尚無上題記錄</p>';
-        area.className = area.className.replace(/correct-result|wrong-result/g, '').trim();
+        area.classList.remove('correct-result', 'wrong-result');
         return;
     }
     const d = lastQuestionData;

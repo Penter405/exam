@@ -195,36 +195,16 @@ button:hover {
     align-items: center;
 }
 
-/* --- Area B: Inline Settings Button --- */
-.area-b {
-    margin-top: 12px;
-    text-align: right;
-}
+/* --- Settings Button: 白色容器右上角 --- */
+.container { position: relative; }
 
-.settings-inline-btn {
-    background-color: #4CAF50;
-    color: white;
-    padding: 8px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 15px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    transition: transform 0.15s;
-}
-
-.settings-inline-btn:active { transform: scale(0.95); }
-
-/* --- Square Toggle Button (top-right of quiz area) --- */
-#quiz-area { position: relative; }
-
-.square-toggle-btn {
+.container-topright-btn {
     position: absolute;
-    top: 0;
-    right: 0;
-    width: 36px;
-    height: 36px;
-    border-radius: 6px;
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
     background-color: #4CAF50;
     color: white;
     font-size: 20px;
@@ -235,21 +215,24 @@ button:hover {
     justify-content: center;
     cursor: pointer;
     border: none;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    transition: transform 0.15s;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
     z-index: 10;
 }
 
-.square-toggle-btn:active { transform: scale(0.9); }
-.square-toggle-btn.active {
-    background-color: #2E7D32;
-    box-shadow: 0 0 0 3px #4CAF50, 0 2px 6px rgba(0,0,0,0.3);
+.container-topright-btn:hover { background-color: #45a049; }
+.container-topright-btn:active { transform: scale(0.9); }
+
+/* --- Output Section: 白色容器底部 --- */
+#output-section {
+    position: relative;
+    margin-top: 20px;
+    min-height: 40px;
 }
 
-/* --- Draggable Line Handle (上題記錄) --- */
+/* --- Draggable Line: 白色容器底部 middle top --- */
 .last-q-handle {
     width: 100%;
-    padding: 10px 0 4px 0;
+    padding: 8px 0 4px 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -262,7 +245,6 @@ button:hover {
     height: 5px;
     background-color: #ccc;
     border-radius: 3px;
-    transition: background-color 0.15s;
 }
 
 .last-q-handle:active .last-q-handle-bar { background-color: #999; }
@@ -270,22 +252,23 @@ button:hover {
 .last-q-handle-label {
     font-size: 11px;
     color: #aaa;
-    margin-top: 4px;
+    margin-top: 3px;
 }
 
-/* --- Area A: Last Question Result (inline) --- */
-#last-question-area {
-    margin-top: 8px;
+/* --- Collapsible Last Question Result --- */
+#collapsible-area {
     padding: 12px;
     background-color: #f9f9f9;
     border-radius: 6px;
     border-left: 4px solid #ccc;
+    margin-top: 8px;
+    margin-bottom: 8px;
     white-space: pre-wrap;
     font-size: 14px;
 }
 
-#last-question-area.correct-result { border-left-color: #4CAF50; }
-#last-question-area.wrong-result { border-left-color: #f44336; }
+#collapsible-area.correct-result { border-left-color: #4CAF50; }
+#collapsible-area.wrong-result { border-left-color: #f44336; }
 
 #last-question-content .lq-title {
     font-weight: bold; color: #333; margin-bottom: 6px;
@@ -295,6 +278,33 @@ button:hover {
 }
 #last-question-content .lq-detail {
     color: #666; font-size: 13px;
+}
+
+/* --- 答題記錄 Button: 白色容器底部 右下角 --- */
+.bottom-right-btn {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background-color: #4CAF50;
+    color: white;
+    font-size: 18px;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.bottom-right-btn:active { transform: scale(0.9); }
+.bottom-right-btn.active {
+    background-color: #2E7D32;
+    box-shadow: 0 0 0 3px #4CAF50;
 }
 
 /* --- Settings Popup --- */
