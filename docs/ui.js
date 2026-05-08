@@ -216,7 +216,7 @@ const globalSpacing = new SpacingController({
 
 // Question content spacing: line-height and option padding inside question display
 const questionSpacing = new SpacingController({
-    key: 'question', defaultPx: 20, minPx: 12, maxPx: 48, step: 2, label: '題目間距',
+    key: 'question', defaultPx: 12, minPx: 4, maxPx: 48, step: 2, label: '題目間距',
     apply(px) {
         const lh = (px / 16).toFixed(2); // convert px to unitless line-height
         document.querySelectorAll('#question-display p, #question-display h3').forEach(el => {

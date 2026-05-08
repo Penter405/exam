@@ -80,22 +80,21 @@
             <button onclick="submitFix()">停止訂正</button>
         </div>
         
-        <!-- 上題記錄: 在 output 上方，向上展開 -->
-        <div id="collapsible-area" class="hidden">
-            <div id="last-question-content">
-                <p style="text-align:center;color:#999;">尚無上題記錄</p>
-            </div>
-        </div>
-
-        <!-- output block -->
+        <!-- output block: grows downward when 上題記錄 is expanded -->
         <div id="output">
-            <!-- 拖拉線: output block 的最頂部 -->
+            <!-- 拖拉線: top of output block -->
             <div class="last-q-handle" id="last-q-handle" ontouchstart="onHandleTouchStart(event)" ontouchmove="onHandleTouchMove(event)" ontouchend="onHandleTouchEnd(event)" onclick="toggleLastQuestion()">
                 <div class="last-q-handle-bar"></div>
                 <div class="last-q-handle-label">上題記錄</div>
             </div>
+            <!-- 上題記錄展開區: grows below the line, inside output -->
+            <div id="collapsible-area" class="hidden">
+                <div id="last-question-content">
+                    <p style="text-align:center;color:#999;">尚無上題記錄</p>
+                </div>
+            </div>
             <div id="output-text"></div>
-            <!-- 答題記錄按鈕: 右下角 -->
+            <!-- 答題記錄按鈕: bottom-right of output -->
             <button type="button" class="bottom-right-btn" id="history-toggle-btn" onclick="toggleLastQuestion()">📋</button>
         </div>
 
