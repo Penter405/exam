@@ -138,10 +138,13 @@ function closeSpacingSlider() {
 // Spacing: stored as px value for vertical margins/padding
 const SPACING_DEFAULT = 16; // px
 const SPACING_STEP = 2;     // px per slider unit
+const SPACING_MIN = 4;
+const SPACING_MAX = 40;
 let currentSpacing = SPACING_DEFAULT;
+let spacingDebt = 0; // negative = debt from hitting min wall
 
 function applySpacing(px) {
-    currentSpacing = Math.max(4, Math.min(40, px));
+    currentSpacing = Math.max(SPACING_MIN, Math.min(SPACING_MAX, px));
     const s = currentSpacing + 'px';
     document.querySelectorAll('#question-display, #answer-display, #fix-question-display').forEach(el => {
         el.style.paddingTop = s;
@@ -166,21 +169,42 @@ function updateSpacingLabel() {
 
 function resetSpacing() {
     applySpacing(SPACING_DEFAULT);
+    spacingDebt = 0;
     const slider = document.getElementById('spacing-slider');
     if (slider) slider.value = 0;
     updateSpacingLabel();
+}
+
+// Apply one unit of spacing change using the debt system
+function applySpacingUnit(direction) {
+    // direction: +1 = increase, -1 = decrease
+    if (direction < 0) {
+        if (currentSpacing <= SPACING_MIN) {
+            // Already at wall — accumulate debt
+            spacingDebt -= 1;
+        } else {
+            applySpacing(currentSpacing - SPACING_STEP);
+        }
+    } else {
+        if (spacingDebt < 0) {
+            // Burn off debt first
+            spacingDebt += 1;
+            updateSpacingLabel(); // label stays same, debt shrinking
+        } else {
+            applySpacing(currentSpacing + SPACING_STEP);
+        }
+    }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
     const slider = document.getElementById('spacing-slider');
     if (!slider) return;
 
-    // Live drag: preview spacing change relative to current
+    // Live drag: preview spacing change relative to current (ignoring debt for preview)
     slider.addEventListener('input', e => {
         const delta = parseInt(e.target.value) * SPACING_STEP;
-        const preview = currentSpacing + delta;
-        // Apply preview (don't save yet)
-        const s = Math.max(4, Math.min(40, preview)) + 'px';
+        const preview = Math.max(SPACING_MIN, Math.min(SPACING_MAX, currentSpacing + delta));
+        const s = preview + 'px';
         document.querySelectorAll('#question-display, #answer-display, #fix-question-display').forEach(el => {
             el.style.paddingTop = s;
             el.style.paddingBottom = s;
@@ -189,20 +213,23 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.numpad-row, .action-row').forEach(el => {
             el.style.marginBottom = s;
         });
-        // Show live value
         const el = document.getElementById('spacing-value-display');
         if (el) {
-            const diff = Math.max(4, Math.min(40, preview)) - SPACING_DEFAULT;
+            const diff = preview - SPACING_DEFAULT;
             if (diff === 0) el.textContent = '間距: 標準';
             else if (diff > 0) el.textContent = `間距: +${diff}px (較大)`;
             else el.textContent = `間距: ${diff}px (較小)`;
         }
     });
 
-    // On release: commit change, snap back to 0
+    // On release: apply each unit with debt system, then snap back
     slider.addEventListener('change', e => {
-        const delta = parseInt(e.target.value) * SPACING_STEP;
-        applySpacing(currentSpacing + delta);
+        const units = parseInt(e.target.value); // -5 to +5
+        const dir = units > 0 ? 1 : units < 0 ? -1 : 0;
+        const count = Math.abs(units);
+        for (let i = 0; i < count; i++) {
+            applySpacingUnit(dir);
+        }
         // Snap back to center
         setTimeout(() => { slider.value = 0; }, 80);
     });
