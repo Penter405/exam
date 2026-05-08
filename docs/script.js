@@ -532,9 +532,9 @@ let examSystem = new ExamSystem();
 
 // ====== 輸出訊息 ======
 function showOutput(msg) {
-    const el = document.getElementById('output');
+    const el = document.getElementById('output-text');
     el.textContent = msg;
-    el.style.display = 'block';
+    document.getElementById('output').style.display = 'block';
 }
 
 function hideAllSections() {

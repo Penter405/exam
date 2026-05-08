@@ -137,6 +137,8 @@ button:hover {
     background-color: #f9f9f9;
     border-radius: 4px;
     white-space: pre-wrap;
+    position: relative;
+    min-height: 40px;
 }
 
 #file-upload {
@@ -222,14 +224,7 @@ button:hover {
 .container-topright-btn:hover { background-color: #45a049; }
 .container-topright-btn:active { transform: scale(0.9); }
 
-/* --- Output Section: 白色容器底部 --- */
-#output-section {
-    position: relative;
-    margin-top: 20px;
-    min-height: 40px;
-}
-
-/* --- Draggable Line: 白色容器底部 middle top --- */
+/* --- Draggable Line: middle top of output --- */
 .last-q-handle {
     width: 100%;
     padding: 8px 0 4px 0;

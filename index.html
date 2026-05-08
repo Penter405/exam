@@ -80,11 +80,10 @@
             <button onclick="submitFix()">停止訂正</button>
         </div>
         
-        <!-- 白色容器底部 (output area) -->
-        <div id="output-section">
-            <div id="output"></div>
-
-            <!-- 拖拉線: 白色容器底部 middle top -->
+        <!-- 白色容器底部 (output area) — 拖拉線 + 答題記錄 都在這裡 -->
+        <div id="output">
+            <div id="output-text"></div>
+            <!-- 拖拉線: middle top -->
             <div class="last-q-handle" id="last-q-handle" ontouchstart="onHandleTouchStart(event)" ontouchmove="onHandleTouchMove(event)" ontouchend="onHandleTouchEnd(event)" onclick="toggleLastQuestion()">
                 <div class="last-q-handle-bar"></div>
                 <div class="last-q-handle-label">上題記錄</div>
@@ -97,7 +96,7 @@
                 </div>
             </div>
 
-            <!-- 答題記錄按鈕: 白色容器底部 右下角 -->
+            <!-- 答題記錄按鈕: 右下角 -->
             <button type="button" class="bottom-right-btn" id="history-toggle-btn" onclick="toggleLastQuestion()">📋</button>
         </div>
     </div>
