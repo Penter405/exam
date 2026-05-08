@@ -255,7 +255,6 @@ class ExamSystem {
             <h3>題號: ${ob}</h3>
             <p>${q[0]}</p>
             <div>${optionsHtml}</div>
-            <p class="hint">輸入答案 (輸入 'stop' 停止, 不知道答案輸入 0)</p>
             <p class="remaining">剩餘 ${this.currentQuestionPool.length} 題</p>
         `;
 
@@ -263,7 +262,9 @@ class ExamSystem {
         document.getElementById('quiz-area').classList.remove('hidden');
         document.getElementById('main-menu').classList.add('hidden');
         document.getElementById('answer-input').value = '';
-        document.getElementById('answer-input').focus();
+        // Clear numpad and rebind super clear
+        if (typeof clearNumpad === 'function') clearNumpad();
+        if (typeof bindSuperClearOptions === 'function') bindSuperClearOptions();
     }
 
     // --- 提交答案 (match main.py answer checking) ---
@@ -281,8 +282,9 @@ class ExamSystem {
         const userSet = new Set(input.split(''));
         const correctSet = new Set(q[2]);
 
+        const isCorrect = this.setsEqual(userSet, correctSet);
         let resultMsg = '';
-        if (this.setsEqual(userSet, correctSet)) {
+        if (isCorrect) {
             resultMsg = '✅ correct';
         } else {
             resultMsg = `❌ wrong\nthe answer is: ${Array.from(q[2]).join('')}`;
@@ -290,6 +292,11 @@ class ExamSystem {
         }
         resultMsg += `\nthe question is  ${ob}`;
         showOutput(resultMsg);
+
+        // Track in history
+        if (typeof addToHistory === 'function') {
+            addToHistory(ob, q[0], isCorrect, Array.from(q[2]).join(''), input);
+        }
 
         // Save progress
         this.saveData('didNotFinish', this.currentQuestionPool);

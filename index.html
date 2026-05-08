@@ -2,12 +2,12 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>刷題系統</title>
     <link rel="stylesheet" href="docs/style.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container" id="app-container">
         <h1>刷題系統</h1>
         
         <div class="exam-selector">
@@ -28,13 +28,34 @@
             <button onclick="downloadData()">下載資料檔案</button>
             <hr>
             <button onclick="backToExamSelect()">返回選擇考試</button>
+            <div class="cache-indicator" id="cache-indicator"></div>
         </div>
         
         <div id="quiz-area" class="hidden">
             <div id="question-display"></div>
-            <input type="text" id="answer-input" placeholder="輸入答案 (stop=停止, 0=不知道)">
-            <button onclick="submitAnswer()">提交答案</button>
-            <button onclick="stopQuiz()">停止</button>
+            
+            <!-- Answer input (readonly, no virtual keyboard) -->
+            <input type="text" id="answer-input" placeholder="已選擇的答案" readonly inputmode="none">
+            
+            <!-- Number pad row: 0 1 2 3 4 -->
+            <div class="numpad-row" id="numpad-row">
+                <button type="button" class="numpad-btn num-0" data-num="0" onclick="toggleNumpad(0)">0</button>
+                <button type="button" class="numpad-btn num-other" data-num="1" onclick="toggleNumpad(1)">1</button>
+                <button type="button" class="numpad-btn num-other" data-num="2" onclick="toggleNumpad(2)">2</button>
+                <button type="button" class="numpad-btn num-other" data-num="3" onclick="toggleNumpad(3)">3</button>
+                <button type="button" class="numpad-btn num-other" data-num="4" onclick="toggleNumpad(4)">4</button>
+            </div>
+            
+            <!-- Action buttons -->
+            <div class="action-row">
+                <button onclick="submitAnswer()">提交答案</button>
+                <button onclick="stopQuiz()">停止</button>
+            </div>
+
+            <!-- Draggable line to reveal history (in quiz) -->
+            <div class="history-handle" id="quiz-history-handle" ontouchstart="onHandleTouchStart(event)" ontouchmove="onHandleTouchMove(event)" ontouchend="onHandleTouchEnd(event)" onclick="toggleHistoryPanel()">
+                <div class="history-handle-bar"></div>
+            </div>
         </div>
         
         <div id="search-area" class="hidden">
@@ -63,7 +84,61 @@
         
         <div id="output"></div>
     </div>
+
+    <!-- ===== FIXED BUTTONS ===== -->
     
+    <!-- Settings button (bottom-left, green) -->
+    <button class="fixed-btn" id="settings-btn" onclick="toggleSettings()">⚙️</button>
+    
+    <!-- History toggle square button (bottom-right, green) -->
+    <button class="fixed-btn" id="history-toggle-btn" onclick="toggleHistoryPanel()">📋</button>
+
+    <!-- ===== SETTINGS POPUP ===== -->
+    <div id="settings-popup">
+        <div class="settings-title">⚙️ 設定</div>
+        
+        <div class="settings-item" onclick="openSpacingSlider()">
+            <span class="settings-item-label">調整間距</span>
+            <span class="settings-item-action">▶</span>
+        </div>
+        
+        <div class="settings-item" onclick="toggleHideNumpad()">
+            <span class="settings-item-label">隱藏 01234 按鈕</span>
+            <div class="toggle-switch" id="toggle-hide-numpad"></div>
+        </div>
+        
+        <div class="settings-item" onclick="toggleSuperClear()">
+            <span class="settings-item-label">極簡模式</span>
+            <div class="toggle-switch" id="toggle-super-clear"></div>
+        </div>
+        
+        <div class="settings-item" onclick="showDataManagement()">
+            <span class="settings-item-label">資料管理</span>
+            <span class="settings-item-action">▶</span>
+        </div>
+        
+        <div class="data-info" id="data-info"></div>
+    </div>
+
+    <!-- ===== SPACING SLIDER OVERLAY ===== -->
+    <div id="spacing-overlay">
+        <div class="spacing-label">調整間距 (縮小間距，文字大小不變)</div>
+        <input type="range" id="spacing-slider" min="0.3" max="1.5" step="0.05" value="1">
+        <button class="spacing-close-btn" onclick="closeSpacingSlider()">完成</button>
+    </div>
+
+    <!-- ===== HISTORY PANEL ===== -->
+    <div id="history-panel">
+        <div class="history-handle" ontouchstart="onHistoryHandleTouchStart(event)" ontouchmove="onHistoryHandleTouchMove(event)" ontouchend="onHistoryHandleTouchEnd(event)">
+            <div class="history-handle-bar"></div>
+        </div>
+        <div class="history-title">📝 答題紀錄</div>
+        <div class="history-content" id="history-content">
+            <p style="text-align:center;color:#999;">尚無答題紀錄</p>
+        </div>
+    </div>
+
     <script src="docs/script.js"></script>
+    <script src="docs/ui.js"></script>
 </body>
 </html>
