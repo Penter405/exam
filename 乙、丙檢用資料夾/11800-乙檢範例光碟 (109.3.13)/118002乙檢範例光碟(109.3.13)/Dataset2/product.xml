@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dataroot xmlns:od="urn:schemas-microsoft-com:officedata" generated="2018-03-07T17:25:01">
+<PRODUCT>
+<產品名稱>486主機板VL slot *3 16MB RAM</產品名稱>
+<產品代號>MB486V3R16</產品代號>
+<單價>13095</單價>
+<成本>7464</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>486主機板VL slot *3 32MB RAM</產品名稱>
+<產品代號>MB486V3R32</產品代號>
+<單價>23862</單價>
+<成本>13601</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>486主機板PCI slot *3 16MB RAM</產品名稱>
+<產品代號>MB486P3R16</產品代號>
+<單價>14744</單價>
+<成本>8404</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>486主機板PCI slot *3 32MB RAM</產品名稱>
+<產品代號>MB486P3R32</產品代號>
+<單價>25220</單價>
+<成本>14375</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>585主機板PCI slot *3 32MB RAM</產品名稱>
+<產品代號>MB586P3R32</產品代號>
+<單價>31040</單價>
+<成本>17692</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>586主機板PCI slot *3 16MB RAM</產品名稱>
+<產品代號>MB586P3R16</產品代號>
+<單價>15035</單價>
+<成本>8569</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>586主機板VL slot *3 32MB RAM</產品名稱>
+<產品代號>MB586V3R32</產品代號>
+<單價>35405</單價>
+<成本>20180</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>586主機板VL slot *3 16MB RAM</產品名稱>
+<產品代號>MB586V3R16</產品代號>
+<單價>14744</單價>
+<成本>8404</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>586主機板EISA slot *3 32MB RAM</產品名稱>
+<產品代號>MB586E3R32</產品代號>
+<單價>39964</單價>
+<成本>22779</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>586主機板EISA slot *3 16MB RAM</產品名稱>
+<產品代號>MB586E3R16</產品代號>
+<單價>18236</單價>
+<成本>10394</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>586主機板EISA slot *7 32MB RAM</產品名稱>
+<產品代號>MB586E7R32</產品代號>
+<單價>41031</單價>
+<成本>23387</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>586主機板EISA slot *7 16MB RAM</產品名稱>
+<產品代號>MB586E7R16</產品代號>
+<單價>20855</單價>
+<成本>11887</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>SuperVGA 1280*1024 VL BUS 1MB</產品名稱>
+<產品代號>SVGAV1M</產品代號>
+<單價>3734</單價>
+<成本>2128</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>SuperVGA 1280*1024 VL BUS 2MB</產品名稱>
+<產品代號>SVGAV2M</產品代號>
+<單價>4539</單價>
+<成本>2587</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>SuperVGA 1280*1024 PCI BUS 1MB</產品名稱>
+<產品代號>SVGAP1M</產品代號>
+<單價>3996</單價>
+<成本>2277</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>SuperVGA 1280*1024 PCI BUS 2MB</產品名稱>
+<產品代號>SVGAP2M</產品代號>
+<單價>4801</單價>
+<成本>2736</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>SCSIcard PCI BUS</產品名稱>
+<產品代號>SCSIPB</產品代號>
+<單價>2134</單價>
+<成本>1216</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>SCSIcard VL BUS</產品名稱>
+<產品代號>SCSIVB</產品代號>
+<單價>1891</單價>
+<成本>1077</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>EnhanceIDE PCI BUS</產品名稱>
+<產品代號>EIDE1RP</產品代號>
+<單價>2134</單價>
+<成本>1216</成本>
+</PRODUCT>
+<PRODUCT>
+<產品名稱>EnhanceIDE VL BUS</產品名稱>
+<產品代號>EIDE2RP</產品代號>
+<單價>1513</單價>
+<成本>862</成本>
+</PRODUCT>
+</dataroot>
